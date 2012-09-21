@@ -47,8 +47,12 @@ OTHERINCDIR = -I$(SYSDIR)/include/glib-2.0 -I$(SYSDIR)/lib/glib-2.0/include -I$(
 # Other link directories (i.e. libcfitsio if in different location)
 OTHERLIBDIR =
 
+#DAL2.5 include directory and library directory
+LOFARDALINCDIR=-L/opt/cep/dal/current/include		# DAL include directory on CEP
+LOFARDALLIBDIR=-L/opt/cep/dal/current/lib/ 		# DAL lib directory on CEP
+
 # The standard PRESTO libraries to link into executables
-PRESTOLINK = $(OTHERLIBDIR) -L$(PRESTO)/lib -lpresto $(FFTLINK)
+PRESTOLINK = $(OTHERLIBDIR) ${LOFARDALLIBDIR}  -L$(PRESTO)/lib -lpresto $(FFTLINK) -llofardal
 
 # When modifying the CLIG files, the is the location of the clig binary
 CLIG = clig
@@ -158,7 +162,7 @@ mpiprepsubband.o: mpiprepsubband.c
 	mpicc $(CLINKFLAGS) -c mpiprepsubband.c
 
 mpiprepsubband: mpiprepsubband_cmd.c mpiprepsubband_cmd.o mpiprepsubband_utils.o mpiprepsubband.o $(INSTRUMENTOBJS)
-	mpicc $(CLINKFLAGS) -o $(PRESTO)/bin/$@ mpiprepsubband_cmd.o mpiprepsubband_utils.o mpiprepsubband.o $(INSTRUMENTOBJS) $(PRESTOLINK) -lcfitsio -lm
+	mpicc $(CLINKFLAGS) -o $(PRESTO)/bin/$@ mpiprepsubband_cmd.o mpiprepsubband_utils.o mpiprepsubband.o $(INSTRUMENTOBJS) $(PiRESTOLINK) -lcfitsio -lm
 
 accelsearch: accelsearch_cmd.c accelsearch_cmd.o accel_utils.o accelsearch.o zapping.o
 	$(CC) $(CLINKFLAGS) -o $(PRESTO)/bin/$@ accelsearch_cmd.o accel_utils.o accelsearch.o zapping.o $(PRESTOLINK) -lglib-2.0 -lm

@@ -7,13 +7,18 @@
 #include "wapp_key.h"
 #include "spigot.h"
 #include "psrfits.h"
+#include "lofar_bf.h" 
 #include "sigproc_fb.h"
 #include "readfile_cmd.h"
+
+#if WITH_DAL
+#include <dal/lofar/CLA_File.h>
+#endif
 
 /* #define DEBUG */
 
 #define PAGELEN 32              /* Set the page length to 32 lines */
-#define NUMTYPES 17
+#define NUMTYPES 18             /* number of file types to support */
 
 void print_WAPP_hdr(struct HEADERP *hdr);
 
@@ -34,6 +39,7 @@ int WAPPHDR_print(long count, char *obj_ptr);
 int SPIGOTHDR_print(long count, char *obj_ptr);
 int SIGPROCHDR_print(long count, char *obj_ptr);
 int PSRFITSHDR_print(long count, char *obj_ptr);
+int LOFARHDR_print();
 void print_rawbincand(rawbincand cand);
 void set_WAPP_HEADER_version(struct HEADERP *hdr);
 
@@ -42,7 +48,8 @@ typedef enum {
     DOUBLE, FCPLEX, 
     DCPLEX, SHORT, INT, LONG,
     RZWCAND, BINCAND, POSITION, 
-    PKMBHDR, BCPMHDR, WAPPHDR, SPIGOTHDR, SIGPROCHDR, PSRFITSHDR
+    PKMBHDR, BCPMHDR, WAPPHDR, SPIGOTHDR, SIGPROCHDR, PSRFITSHDR,
+    LOFARHDR		/* BF writer HDF5 header of LOFAR */
 } rawtypes;
 
 typedef struct fcplex {
@@ -71,7 +78,8 @@ int type_sizes[NUMTYPES] = {
    32768, /* This is the length of a BCPM header */
    0,     /* "Special" length for a WAPP header */
    0,     /* "Special" length for a SPIGOT header */
-   0      /* "Special" length for a SIGPROC header */
+   0,     /* "Special" length for a SIGPROC header */
+   0      /* "Special" length for a LOFAR BF header */
 };
 
 int objs_at_a_time[NUMTYPES] = {
@@ -97,7 +105,8 @@ int (*print_funct_ptrs[NUMTYPES]) () = {BYTE_print,
                                         WAPPHDR_print, 
                                         SPIGOTHDR_print, 
                                         SIGPROCHDR_print,
-                                        PSRFITSHDR_print};
+                                        PSRFITSHDR_print,												       
+                                        LOFARHDR_print};
 
 /* A few global variables */
 
@@ -173,6 +182,8 @@ int main(int argc, char **argv)
       index = SIGPROCHDR;
    else if (cmd->psrfitsP)
       index = PSRFITSHDR;
+   else if (cmd->lofarP)
+      index = LOFARHDR;
    
    /* Try to determine the data type from the file name */
 
@@ -181,7 +192,7 @@ int main(int argc, char **argv)
       if (!has_suffix) {
          need_type = 1;
       } else {
-         if (strlen(extension) < 3) {
+         if (strlen(extension) < 2) { /* LOFAR BF writer uses ".h5" files, so we need to support .h5 */
             need_type = 1;
          } else {
             if (0 == strcmp(extension, "dat")) {
@@ -205,6 +216,9 @@ int main(int argc, char **argv)
                     fprintf(stdout,
                             "Assuming the data is in PSRFITS format.\n\n");
                 }
+            } else if (0 == strcmp(extension, "h5")) {
+                index = LOFARHDR;
+                fprintf(stdout, "Assuming the data is in LOFAR BF format.\n\n");
             } else if (0 == strcmp(extension, "bcpm1") ||
                        0 == strcmp(extension, "bcpm2")) {
                cmd->bcpmP = 1;
@@ -275,10 +289,14 @@ int main(int argc, char **argv)
                   fprintf(stdout,
                           "\nUsing N = %ld, dt = %g, and DC Power = %f\n\n",
                           N, dt, nph);
-               } else
-                  need_type = 1;
+		       	} 	else {
+	               	   need_type = 1;
+			}
+				}				
+				else if (0 == strcmp(extension, "h5")) {
+					    printf("LOFAR BFwriter HDF5 file.\n");		/* DEBUG */
             } else
-               need_type = 1;
+              	need_type = 1;
          }
       }
 
@@ -315,6 +333,12 @@ int main(int argc, char **argv)
        }
        exit(0);
    }
+
+  if (cmd->lofarP) {
+      struct lofarbf;
+  
+      printf("LOFAR file provided\n");	/* DEBUG */
+  }
 
    if (cmd->spigotP) {
       SPIGOT_INFO spigot;
@@ -354,6 +378,15 @@ int main(int argc, char **argv)
            printf("\n  Error reading WAPP file!\n\n");
        }
        exit(0);
+   }
+
+   /* LOFAR BFwriter files */
+   if(cmd->lofarP) {
+      printf("We have a cmd->lofarP!\n");
+
+      // Open HDF5 file using DAL2
+
+      exit(0);  /* DBEUG */
    }
 
    /* Open the file */
@@ -552,6 +585,16 @@ int PSRFITSHDR_print(long count, char *obj_ptr)
    printf("\n%ld:", count + 1);
    bogus = (char *) obj_ptr;
    return 0;
+}
+
+/*
+  LOFARHDR_print uses the LOFAR DAL2.x to open a HDF5 BFwriter file and
+  display header information
+*/
+int LOFARHDR_print()
+{
+  // Open BF file using DAL
+  return 0;
 }
 
 int SIGPROCHDR_print(long count, char *obj_ptr)

@@ -963,7 +963,7 @@ static int read_subbands(FILE * infiles[], int numfiles,
 {
    int ii, jj, index, numread = 0, mask = 0,offset;
    short subsdata[SUBSBLOCKLEN]; 
-   double starttime, run_avg;
+   double starttime, run_avg=0;
    float subband_sum;
    static int currentblock = 0;
 

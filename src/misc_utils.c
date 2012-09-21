@@ -185,8 +185,20 @@ void telescope_to_tempocode(char *inname, char *outname, char*obscode)
         strcpy(obscode, "GM");
         strcpy(outname, "GMRT");
     } else if (strcmp(scope, "lofar") == 0 ) {
-      strcpy(obscode, "LF");
-      strcpy(outname, "LOFAR");
+        strcpy(obscode, "LF");
+        strcpy(outname, "LOFAR");
+    } else if (strcmp(scope, "fr606") == 0 ) {
+        strcpy(obscode, "FL");
+        strcpy(outname, "FR606");
+    } else if (strcmp(scope, "utr-2") == 0 ) {
+        strcpy(obscode, "U2");
+        strcpy(outname, "UTR-2");
+    } else if (strcmp(scope, "de601") == 0 ) {
+        strcpy(obscode, "DL");
+        strcpy(outname, "DE601");
+    } else if (strcmp(scope, "uk608") == 0 ) {
+        strcpy(obscode, "UL");
+        strcpy(outname, "UK608");
     } else if (strcmp(scope, "geocenter") == 0) {
         strcpy(obscode, "EC");
         strcpy(outname, "Geocenter");

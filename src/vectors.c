@@ -298,4 +298,3 @@ void vect_free( void *vect )
 {
    fftwf_free(vect);
 }
-

@@ -81,6 +81,8 @@ static Cmdline cmd = {
   /* filterbankP = */ 0,
   /***** -psrfits: Raw data in PSRFITS format */
   /* psrfitsP = */ 0,
+  /***** -lofar: Raw data in LOFAR BFwriter format */
+  /* lofarP = */ 0,
   /***** -fortran: Raw data was written by a fortran program */
   /* fortranP = */ 0,
   /***** -index: The range of objects to display */
@@ -997,6 +999,13 @@ showOptionValues(void)
     printf("-psrfits found:\n");
   }
 
+  /***** -lofar: Raw data in LOFAR BFwriter format */
+  if( !cmd.lofarP ) {
+    printf("-lofar not found.\n");
+  } else {
+    printf("-lofar found:\n");
+  }
+
   /***** -fortran: Raw data was written by a fortran program */
   if( !cmd.fortranP ) {
     printf("-fortran not found.\n");
@@ -1046,7 +1055,7 @@ showOptionValues(void)
 void
 usage(void)
 {
-  fprintf(stderr,"%s","   [-page] [-byte] [-b] [-float] [-f] [-double] [-d] [-fcomplex] [-fc] [-dcomplex] [-dc] [-short] [-s] [-int] [-i] [-long] [-l] [-rzwcand] [-rzw] [-bincand] [-bin] [-position] [-pos] [-pkmb] [-bcpm] [-wapp] [-spigot] [-filterbank] [-psrfits] [-fortran] [-index [index]] [-nph nph] [--] file\n");
+  fprintf(stderr,"%s","   [-page] [-byte] [-b] [-float] [-f] [-double] [-d] [-fcomplex] [-fc] [-dcomplex] [-dc] [-short] [-s] [-int] [-i] [-long] [-l] [-rzwcand] [-rzw] [-bincand] [-bin] [-position] [-pos] [-pkmb] [-bcpm] [-wapp] [-spigot] [-filterbank] [-psrfits] [-lofar] [-fortran] [-index [index]] [-nph nph] [--] file\n");
   fprintf(stderr,"%s","      Reads raw data from a binary file and displays it on stdout.\n");
   fprintf(stderr,"%s","          -page: Paginate the output like 'more'\n");
   fprintf(stderr,"%s","          -byte: Raw data in byte format\n");
@@ -1077,6 +1086,7 @@ usage(void)
   fprintf(stderr,"%s","        -spigot: Raw data in Spigot Card format\n");
   fprintf(stderr,"%s","    -filterbank: Raw data in SIGPROC filterbank format\n");
   fprintf(stderr,"%s","       -psrfits: Raw data in PSRFITS format\n");
+  fprintf(stderr,"%s","         -lofar: Raw data in LOFAR BFwriter format\n");
   fprintf(stderr,"%s","       -fortran: Raw data was written by a fortran program\n");
   fprintf(stderr,"%s","         -index: The range of objects to display\n");
   fprintf(stderr,"%s","                 0...2 int values between -1 and oo\n");
@@ -1086,7 +1096,7 @@ usage(void)
   fprintf(stderr,"%s","                 default: `1.0'\n");
   fprintf(stderr,"%s","           file: Input data file name.\n");
   fprintf(stderr,"%s","                 1 value\n");
-  fprintf(stderr,"%s","  version: 12Mar10\n");
+  fprintf(stderr,"%s","  version: 21Sep12\n");
   fprintf(stderr,"%s","  ");
   exit(EXIT_FAILURE);
 }
@@ -1246,6 +1256,11 @@ parseCmdline(int argc, char **argv)
 
     if( 0==strcmp("-psrfits", argv[i]) ) {
       cmd.psrfitsP = 1;
+      continue;
+    }
+
+    if( 0==strcmp("-lofar", argv[i]) ) {
+      cmd.lofarP = 1;
       continue;
     }
 

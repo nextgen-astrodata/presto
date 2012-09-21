@@ -67,6 +67,8 @@ typedef struct s_Cmdline {
   char filterbankP;
   /***** -psrfits: Raw data in PSRFITS format */
   char psrfitsP;
+  /***** -lofar: Raw data in LOFAR BFwriter format */
+  char lofarP;
   /***** -fortran: Raw data was written by a fortran program */
   char fortranP;
   /***** -index: The range of objects to display */

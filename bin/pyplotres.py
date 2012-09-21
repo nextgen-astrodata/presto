@@ -77,7 +77,7 @@ def find_freq_clusters(freqs):
 
 
 class TempoResults:
-    def __init__(self, freqbands):
+    def __init__(self, freqbands=[[0, 'inf']]):
         """Read TEMPO results (resid2.tmp, tempo.lis, timfile and parfiles)
             freqbands is a list of frequency pairs to display.
         """
@@ -110,7 +110,16 @@ class TempoResults:
         self.outpar = par.psr_par(outparfn)
 
         # Read residuals
-        r = residuals.read_residuals()
+        # Need to check if on 32-bit or 64-bit computer
+        #(the following is a hack to find out if we're on a borg or borgii node)
+#PATRICKS QUICK FIX 10/14   -   3/39/11 read_residuals_64bit does not work on nimrod or my machine, but 32bit does...
+        #print os.uname()[4]
+        if True: #os.uname()[4]=='i686':
+            # 32-bit computer
+            r = residuals.read_residuals()
+        else:
+            # 64-bit computer
+            r = residuals.read_residuals_64bit()
 
         self.max_TOA = r.bary_TOA.max()
         self.min_TOA = r.bary_TOA.min()
@@ -581,6 +590,7 @@ def parse_options():
                      ['1000', '1600'],
                      ['1600', '2400'],
                      ['2400', 'inf']]
+        #freqbands = [['0', 'inf']]
     else:
         freqbands = []
         for fopt in options.freqs:
