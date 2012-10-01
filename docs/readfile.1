@@ -11,7 +11,7 @@
 .\" it edited by clig, remove the respective pair of cligPart-lines.
 .\"
 .\" cligPart TITLE
-.TH "readfile" 1 "12Mar10" "Clig-manuals" "Programmer's Manual"
+.TH "readfile" 1 "21Sep12" "Clig-manuals" "Programmer's Manual"
 .\" cligPart TITLE end
 
 .\" cligPart NAME
@@ -51,6 +51,7 @@ readfile \- Reads raw data from a binary file and displays it on stdout.
 [-spigot]
 [-filterbank]
 [-psrfits]
+[-lofar]
 [-fortran]
 [-index [index]]
 [-nph nph]
@@ -117,6 +118,8 @@ Raw data in Spigot Card format.
 Raw data in SIGPROC filterbank format.
 .IP -psrfits
 Raw data in PSRFITS format.
+.IP -lofar
+Raw data in LOFAR BFwriter format.
 .IP -fortran
 Raw data was written by a fortran program.
 .IP -index

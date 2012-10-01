@@ -47,3 +47,9 @@ void set_LOFAR_padvals(float *fpadvals, int good_padvals)
    }
   */
 }
+
+void print_LOFARBF_info(struct spectra_info *s)
+{
+  printf("From the LOFARBF HDF5 file '%s':\n", s->files[0]->Fptr->filename);
+
+}

@@ -1,3 +1,5 @@
+## Automatically adapted for numpy Apr 14, 2006 by convertcode.py
+
 import numpy as Num
 import copy, random, struct, sys
 import psr_utils, infodata, polycos, Pgplot

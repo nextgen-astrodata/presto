@@ -8,6 +8,7 @@ import numpy as Num
 import matplotlib.pyplot as plt
 
 from presto import candidate_sigma
+import sifting, sys, re
 
 # Note: the following are global variables that can
 #       (and should) be set in whatever module
