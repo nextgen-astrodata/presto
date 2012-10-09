@@ -52,7 +52,7 @@ LOFARDALINCDIR=-L/opt/cep/dal/current/include		# DAL include directory on CEP
 LOFARDALLIBDIR=-L/opt/cep/dal/current/lib/ 		# DAL lib directory on CEP
 
 # The standard PRESTO libraries to link into executables
-PRESTOLINK = $(OTHERLIBDIR) ${LOFARDALLIBDIR}  -L$(PRESTO)/lib -lpresto $(FFTLINK) -llofardal
+PRESTOLINK = $(OTHERLIBDIR) ${LOFARDALLIBDIR}  -L$(PRESTO)/lib -lpresto $(FFTLINK) #-llofardal
 
 # When modifying the CLIG files, the is the location of the clig binary
 CLIG = clig
@@ -61,12 +61,12 @@ CLIG = clig
 # For Opterons, use -march=opteron
 # For Intel Core2 chips, use -march=nocona
 # For gcc-4.X, use -mtune=native
-CC = gcc
+CC = g++
 FC = gfortran
 #FC = g77
 CFLAGS = -I$(PRESTO)/include $(OTHERINCDIR) $(PGPLOTINCDIR) $(FFTINCDIR) \
 	-D$(FFTTYPE) -DUSEMMAP -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 \
-	-O3 -ffast-math -Wall -W -fPIC #-finstrument-functions	# tracing
+	-g -ffast-math -Wall -W -fPIC -mtune=native
 #	-g -Wall -W
 CLINKFLAGS = $(CFLAGS)
 # NOTE:  Be careful of upping the optimization on the
@@ -76,6 +76,7 @@ FFLAGS = -g -fPIC
 FLINKFLAGS = $(FFLAGS)
 LINKCOMMAND1 = $(CC) $(LIBCMD) -o
 LINKCOMMAND2 = ar rcs
+#LINKCOMMANDCPP = $(CPP) $(LIBCMD) -o
 
 # Add to the search path for the executables
 VPATH = ../lib:../bin
@@ -97,7 +98,12 @@ PRESTOOBJS = amoeba.o atwood.o barycenter.o birdzap.o cand_output.o\
 	rzinterp.o rzwinterp.o select.o sorter.o swapendian.o\
 	transpose.o twopass.o twopass_real_fwd.o\
 	twopass_real_inv.o vectors.o multifiles.o mask.o\
-	fitsfile.o hget.o hput.o imio.o trace.o
+	fitsfile.o hget.o hput.o imio.o
+
+LOFAROBJS = lofar_bf.o
+
+#lofar_bf.o: lofar_bf.c
+#	$(CPP) $(CFLAGS) $^
 
 INSTRUMENTOBJS = multibeam.o bpp.o gmrt.o spigot.o sigproc_fb.o\
 	wapp.o wapp_head_parse.o wapp_y.tab.o psrfits.o
@@ -138,6 +144,9 @@ timetest:
 	rm -f timetest
 
 libpresto: libpresto$(LIBSUFFIX)
+
+libprestolofar: ${LOFAROBJS}
+	$(LINCOMMANDCPP) $(PRESTO)/lib/libpresto$(LIBSUFFIX) ${LOFAROBS) -llofardal
 
 libpresto$(LIBSUFFIX): $(PRESTOOBJS)
 	$(LINKCOMMAND1) $(PRESTO)/lib/$@ $(PRESTOOBJS) $(FFTLINK)
@@ -254,8 +263,8 @@ testbinresp: testbinresp.o $(PLOT2DOBJS)
 quicklook: quicklook.o
 	$(CC) $(CLINKFLAGS) -o $(PRESTO)/bin/$@ quicklook.o $(PRESTOLINK) -lm
 
-readfile: readfile_cmd.c readfile_cmd.o readfile.o $(INSTRUMENTOBJS)
-	$(CC) $(CLINKFLAGS) -o $(PRESTO)/bin/$@ readfile.o readfile_cmd.o $(INSTRUMENTOBJS) $(PRESTOLINK) -lcfitsio -lm
+readfile: readfile_cmd.c readfile_cmd.o readfile.o $(INSTRUMENTOBJS) $(LOFAROBJS)
+	$(CPP) $(CLINKFLAGS) -o $(PRESTO)/bin/$@ readfile.o readfile_cmd.o $(INSTRUMENTOBJS) $(LOFAROBJS) $(PRESTOLINK) -lcfitsio -lm
 
 realfft: realfft_cmd.c realfft_cmd.o realfft.o
 	$(CC) $(CLINKFLAGS) -o $(PRESTO)/bin/$@ realfft.o realfft_cmd.o $(PRESTOLINK) -lm

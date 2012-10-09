@@ -192,7 +192,7 @@ int determine_padvals(char *maskfilenm, mask * obsmask, float *padvals[])
       exit(1);
    } else {
       /* Determine the stats file name */
-      statsfilenm = calloc(strlen(maskfilenm) + 2, sizeof(char));
+      statsfilenm = (char*) calloc(strlen(maskfilenm) + 2, sizeof(char));
       sprintf(statsfilenm, "%s.stats", root);
       free(root);
       free(suffix);

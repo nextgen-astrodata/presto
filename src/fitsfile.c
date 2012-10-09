@@ -75,20 +75,19 @@
 #include <sys/file.h>
 #include <errno.h>
 #include <string.h>
+#include "imio.h"
 #include "fitsfile.h"
 
 static int verbose = 0;         /* if 1 print diagnostics */
 static char fitserrmsg[80];
 
-/* FITSRHEAD -- Read a FITS header */
-
-char *fitsrhead(filename, lhead, nbhead)
-
-char *filename;                 /* Name of FITS image file */
-int *lhead;                     /* Allocated length of FITS header in bytes (returned) */
-int *nbhead;                    /* Number of bytes before start of data (returned) */
-                        /* This includes all skipped image extensions */
-
+/* FITSRHEAD -- Read a FITS header 
+char *filename;   			// Name of FITS image file
+int *lhead;             // Allocated length of FITS header in bytes (returned)
+int *nbhead;            // Number of bytes before start of data (returned)
+                        // This includes all skipped image extensions
+*/
+char *fitsrhead(char *filename, int *lhead, int *nbhead)
 {
    int fd;
    char *header;                /* FITS image header (filled) */
@@ -97,7 +96,7 @@ int *nbhead;                    /* Number of bytes before start of data (returne
    int ntry, nbr, irec, nrec, nbh, ipos, npos, nbprim, lprim, lext;
    int nax1, nax2, nax3, nax4, nbpix, ibpix, nblock, nbskip;
    char fitsbuf[2884];
-   char *headend;               /* Pointer to last line of header */
+   char *headend;         			/* Pointer to last line of header */
    char *headnext;              /* Pointer to next line of header to be added */
    int hdu;                     /* header/data unit counter */
    int extnum;                  /* desired header data number
@@ -108,7 +107,7 @@ int *nbhead;                    /* Number of bytes before start of data (returne
    char *pheader;               /* Primary header (naxis is 0) */
    char cext = 0;
    char *rbrac;                 /* Pointer to right bracket if present in file name */
-   char *mwcs;                  /* Pointer to WCS name separated by % */
+   char *mwcs;  		     			  /* Pointer to WCS name separated by % */
 
    pheader = NULL;
    lprim = 0;
@@ -388,17 +387,16 @@ int *nbhead;                    /* Number of bytes before start of data (returne
 }
 
 
-/* FITSRSECT -- Read a piece of a FITS image, having already read the header */
-
-char *fitsrsect(filename, header, nbhead, x0, y0, nx, ny, nlog)
-
-char *filename;                 /* Name of FITS image file */
-char *header;                   /* FITS header for image (previously read) */
-int nbhead;                     /* Actual length of image header(s) in bytes */
-int x0, y0;                     /* FITS image coordinate of first pixel */
-int nx;                         /* Number of columns to read (less than NAXIS1) */
-int ny;                         /* Number of rows to read (less than NAXIS2) */
-int nlog;                       /* Note progress mod this rows */
+/* FITSRSECT -- Read a piece of a FITS image, having already read the header
+const char *filename;           // Name of FITS image file
+char *header;                   // FITS header for image (previously read) 
+int nbhead;                     // Actual length of image header(s) in bytes 
+int x0, y0;                     // FITS image coordinate of first pixel
+int nx;                         // Number of columns to read (less than NAXIS1)
+int ny;                         // Number of rows to read (less than NAXIS2)
+int nlog;                       // Note progress mod this rows
+*/
+char* fitsrsect(char *filename, char *header, int nbhead, int x0, int y0, int nx, int ny, int nlog)
 {
    int fd;                      /* File descriptor */
    int nbimage, naxis1, naxis2, bytepix, nbread;
@@ -526,13 +524,12 @@ int nlog;                       /* Note progress mod this rows */
 }
 
 
-/* FITSRIMAGE -- Read a FITS image */
-
-char *fitsrimage(filename, nbhead, header)
-
-char *filename;                 /* Name of FITS image file */
-int nbhead;                     /* Actual length of image header(s) in bytes */
-char *header;                   /* FITS header for image (previously read) */
+/* FITSRIMAGE -- Read a FITS image 
+char *filename;           // Name of FITS image file
+int nbhead;                     // Actual length of image header(s) in bytes
+char *header;                   // FITS header for image (previously read)
+*/
+char *fitsrimage(char *filename, int nbhead, char *header)
 {
    int fd;
    int nbimage, naxis1, naxis2, bytepix, nbread;
@@ -628,12 +625,10 @@ char *header;                   /* FITS header for image (previously read) */
 }
 
 
-/* FITSROPEN -- Open a FITS file, returning the file descriptor */
-
-int fitsropen(inpath)
-
-char *inpath;                   /* Pathname for FITS tables file to read */
-
+/* FITSROPEN -- Open a FITS file, returning the file descriptor
+char *inpath;                   // Pathname for FITS tables file to read
+*/
+int fitsropen(char *inpath)
 {
    int ntry;
    int fd;                      /* file descriptor for FITS tables file (returned) */
@@ -693,17 +688,15 @@ static int offset2 = 0;
 /* FITSRTOPEN -- Open FITS table file and fill structure with
  *		 pointers to selected keywords
  *		 Return file descriptor (-1 if unsuccessful)
- */
 
-int fitsrtopen(inpath, nk, kw, nrows, nchar, nbhead)
-
-char *inpath;                   /* Pathname for FITS tables file to read */
-int *nk;                        /* Number of keywords to use */
-struct Keyword **kw;            /* Structure for desired entries */
-int *nrows;                     /* Number of rows in table (returned) */
-int *nchar;                     /* Number of characters in one table row (returned) */
-int *nbhead;                    /* Number of characters before table starts */
-
+char *inpath;                   // Pathname for FITS tables file to read 
+int *nk;                        // Number of keywords to use
+struct Keyword **kw;            // Structure for desired entries
+int *nrows;                     // Number of rows in table (returned)
+int *nchar;                     // Number of characters in one table row (returned)
+int *nbhead;                    // Number of characters before table starts
+*/
+int fitsrtopen(char *inpath, int *nk, struct Keyword **kw, int *nrows, int *nchar, int *nbhead)
 {
    char temp[16];
    int fd;
@@ -748,7 +741,9 @@ static int *lpnam;              /* length of name for each field */
 static int bfields = 0;
 
 /* FITSRTHEAD -- From FITS table header, read pointers to selected keywords */
-
+#if defined(__cplusplus)
+int fitsrthead(char *header, int *nk, struct Keyword **kw, int *nrows, int *nchar)
+#else
 int fitsrthead(header, nk, kw, nrows, nchar)
 
 char *header;                   /* Header for FITS tables file to read */
@@ -756,7 +751,7 @@ int *nk;                        /* Number of keywords to use */
 struct Keyword **kw;            /* Structure for desired entries */
 int *nrows;                     /* Number of rows in table (returned) */
 int *nchar;                     /* Number of characters in one table row (returned) */
-
+#endif
 {
    struct Keyword *rw;          /* Structure for desired entries */
    int nfields;
@@ -774,7 +769,7 @@ int *nchar;                     /* Number of characters in one table row (return
    hgets(header, "XTENSION", 16, temp);
    if (strncmp(temp, "TABLE", 5) != 0) {
       snprintf(fitserrmsg, 79, "FITSRTHEAD:  Not a FITS table file\n");
-      free(temp);
+//      free(temp);
       return (-1);
    }
 
@@ -885,17 +880,16 @@ int *nchar;                     /* Number of characters in one table row (return
    return (0);
 }
 
-
-int fitsrtline(fd, nbhead, lbuff, tbuff, irow, nbline, line)
-
-int fd;                         /* File descriptor for FITS file */
-int nbhead;                     /* Number of bytes in FITS header */
-int lbuff;                      /* Number of bytes in table buffer */
-char *tbuff;                    /* FITS table buffer */
-int irow;                       /* Number of table row to read */
-int nbline;                     /* Number of bytes to read for this line */
-char *line;                     /* One line of FITS table (returned) */
-
+/*
+int fd;                         // File descriptor for FITS file
+int nbhead;                     // Number of bytes in FITS header
+int lbuff;                      // Number of bytes in table buffer
+char *tbuff;                    // FITS table buffer
+int irow;                       // Number of table row to read
+int nbline;                     // Number of bytes to read for this line
+char *line;                     // One line of FITS table (returned)
+*/
+int fitsrtline(int fd, int nbhead, int lbuff, char *tbuff, int irow, int nbline, char *line)
 {
    int nbuff, nlbuff, nbr = 0;
    int offset, offend, ntry, ioff;
@@ -946,12 +940,11 @@ void fitsrtlset()
 }
 
 
-/* FTGETI2 -- Extract n'th column from FITS table line as short */
-
-short ftgeti2(entry, kw)
-
-char *entry;                    /* Row or entry from table */
-struct Keyword *kw;             /* Table column information from FITS header */
+/* FTGETI2 -- Extract n'th column from FITS table line as short
+char *entry;                    // Row or entry from table
+struct Keyword *kw;             // Table column information from FITS header
+*/
+short ftgeti2(char *entry, struct Keyword *kw)
 {
    char temp[30];
 
@@ -962,12 +955,11 @@ struct Keyword *kw;             /* Table column information from FITS header */
 }
 
 
-/* FTGETI4 -- Extract n'th column from FITS table line as int */
-
-int ftgeti4(entry, kw)
-
-char *entry;                    /* Row or entry from table */
-struct Keyword *kw;             /* Table column information from FITS header */
+/* FTGETI4 -- Extract n'th column from FITS table line as int 
+char *entry;                    // Row or entry from table
+struct Keyword *kw;             // Table column information from FITS header
+*/
+int ftgeti4(char *entry, struct Keyword *kw)
 {
    char temp[30];
 
@@ -978,12 +970,11 @@ struct Keyword *kw;             /* Table column information from FITS header */
 }
 
 
-/* FTGETR4 -- Extract n'th column from FITS table line as float */
-
-float ftgetr4(entry, kw)
-
-char *entry;                    /* Row or entry from table */
-struct Keyword *kw;             /* Table column information from FITS header */
+/* FTGETR4 -- Extract n'th column from FITS table line as float
+char *entry;                    // Row or entry from table
+struct Keyword *kw;             // Table column information from FITS header
+*/
+float ftgetr4(char *entry, struct Keyword *kw)
 {
    char temp[30];
 
@@ -994,12 +985,11 @@ struct Keyword *kw;             /* Table column information from FITS header */
 }
 
 
-/* FTGETR8 -- Extract n'th column from FITS table line as double */
-
-double ftgetr8(entry, kw)
-
-char *entry;                    /* Row or entry from table */
-struct Keyword *kw;             /* Table column information from FITS header */
+/* FTGETR8 -- Extract n'th column from FITS table line as double
+char *entry;                    // Row or entry from table
+struct Keyword *kw;             // Table column information from FITS header
+*/
+double ftgetr8(char *entry, struct Keyword *kw)
 {
    char temp[30];
 
@@ -1010,14 +1000,13 @@ struct Keyword *kw;             /* Table column information from FITS header */
 }
 
 
-/* FTGETC -- Extract n'th column from FITS table line as character string */
-
-int ftgetc(entry, kw, string, maxchar)
-
-char *entry;                    /* Row or entry from table */
-struct Keyword *kw;             /* Table column information from FITS header */
-char *string;                   /* Returned string */
-int maxchar;                    /* Maximum number of characters in returned string */
+/* FTGETC -- Extract n'th column from FITS table line as character string
+char *entry;                    // Row or entry from table
+struct Keyword *kw;             // Table column information from FITS header
+char *string;                   // Returned string
+int maxchar;                    // Maximum number of characters in returned string
+*/
+int ftgetc(char *entry, struct Keyword *kw, char *string, int maxchar)
 {
    int length = maxchar;
 
@@ -1034,14 +1023,12 @@ int maxchar;                    /* Maximum number of characters in returned stri
 extern int errno;
 
 
-/*FITSWIMAGE -- Write FITS header and image */
-
-int fitswimage(filename, header, image)
-
-char *filename;                 /* Name of FITS image file */
-char *header;                   /* FITS image header */
-char *image;                    /* FITS image pixels */
-
+/*FITSWIMAGE -- Write FITS header and image
+char *filename;        				  // Name of FITS image file
+char *header;                   // FITS image header
+char *image;                    // FITS image pixels
+*/
+int fitswimage(char *filename, char *header, char *image)
 {
    int fd;
 
@@ -1073,14 +1060,12 @@ char *image;                    /* FITS image pixels */
 }
 
 
-/*FITSWEXT -- Write FITS header and image as extension to a file */
-
-int fitswext(filename, header, image)
-
-char *filename;                 /* Name of IFTS image file */
-char *header;                   /* FITS image header */
-char *image;                    /* FITS image pixels */
-
+/*FITSWEXT -- Write FITS header and image as extension to a file
+char *filename;          			  // Name of IFTS image file
+char *header;                   // FITS image header
+char *image;                    // FITS image pixels
+*/
+int fitswext(char *filename, char *header, char *image)
 {
    int fd;
 
@@ -1111,12 +1096,13 @@ char *image;                    /* FITS image pixels */
 }
 
 
-int fitswhdu(fd, filename, header, image)
-
-int fd;                         /* File descriptor */
-char *filename;                 /* Name of IFTS image file */
-char *header;                   /* FITS image header */
-char *image;                    /* FITS image pixels */
+/*
+int fd;                         // File descriptor
+char *filename;          			 // Name of IFTS image file
+char *header;                   // FITS image header
+char *image;                    // FITS image pixels
+*/
+int fitswhdu(int fd, char *filename, char *header, char *image)
 {
    int nbhead, nbimage, nblocks, bytepix;
    int bitpix, naxis, naxis1, naxis2, nbytes, nbw, nbpad, nbwp;
@@ -1223,14 +1209,12 @@ char *image;                    /* FITS image pixels */
 
 
 /*FITSCIMAGE -- Write FITS header and copy FITS image
-		Return number of bytes in output image, 0 if failure */
-
-int fitscimage(filename, header, filename0)
-
-char *filename;                 /* Name of output FITS image file */
-char *header;                   /* FITS image header */
-char *filename0;                /* Name of input FITS image file */
-
+		Return number of bytes in output image, 0 if failure 
+char *filename;         			  // Name of output FITS image file
+char *header;                   // FITS image header
+char *filename0;         			  // Name of input FITS image file 
+*/
+int fitscimage(char *filename, char *header, char *filename0)
 {
    int fdout, fdin;
    int nbhead, nbimage, nblocks, bytepix;
@@ -1241,7 +1225,7 @@ char *filename0;                /* Name of input FITS image file */
    int nbhead0;                 /* Length of input file image header */
    int lhead0;
    int nbbuff, nbuff, ibuff, nbr, nbdata;
-   int fitsheadsize();
+   //int fitsheadsize();
 
    /* Compute size of image in bytes using relevant header parameters */
    naxis = 1;
@@ -1393,13 +1377,11 @@ char *filename0;                /* Name of input FITS image file */
 }
 
 
-/* FITSWHEAD -- Write FITS header and keep file open for further writing */
-
-int fitswhead(filename, header)
-
-char *filename;                 /* Name of IFTS image file */
-char *header;                   /* FITS image header */
-
+/* FITSWHEAD -- Write FITS header and keep file open for further writing
+char *filename;          				// Name of IFTS image file
+char *header;                   // FITS image header
+*/
+int fitswhead(char *filename, char *header)
 {
    int fd;
    int nbhead, nblocks;
@@ -1445,10 +1427,10 @@ char *header;                   /* FITS image header */
 }
 
 
-/* ISFITS -- Return 1 if FITS file, else 0 */
-int isfits(filename)
-
-char *filename;                 /* Name of file for which to find size */
+/* ISFITS -- Return 1 if FITS file, else 0
+char *filename;           // Name of file for which to find size
+*/
+int isfits(char *filename)
 {
    FILE *diskfile;
    char keyword[16];
@@ -1484,11 +1466,10 @@ char *filename;                 /* Name of file for which to find size */
    }
 }
 
-/* FITSHEADSIZE -- Find size of FITS header */
-
-int fitsheadsize(header)
-
-char *header;                   /* FITS header */
+/* FITSHEADSIZE -- Find size of FITS header
+char *header;                   // FITS header
+*/
+int fitsheadsize(char *header)
 {
    char *endhead;
    int nbhead, nblocks;

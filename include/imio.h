@@ -30,22 +30,40 @@
 #ifndef imio_h_
 #define imio_h_
 
-/* Image pixel access subroutines in imio.c */
-extern double getpix(); /* Read one pixel from any data type 2-D array (0,0)*/
-extern double getpix1(); /* Read one pixel from any data type 2-D array (1,1)*/
-extern void putpix();   /* Write one pixel to any data type 2-D array (0,0)*/
-extern void putpix1();  /* Write one pixel to any data type 2-D array (1,1) */
-extern void addpix();   /* Add to one pixel in any data type 2-D array (0,0)*/
-extern void addpix1();  /* Add to one pixel in any data type 2-D array (1,1)*/
-extern void movepix();  /* Move one pixel value between two 2-D arrays (0,0) */
-extern void movepix1(); /* Move one pixel value between two 2-D arrays (1,1) */
-extern void getvec();   /* Read vector from 2-D array */
-extern void putvec();   /* Write vector into 2-D array */
-extern void imswap();   /* Swap alternating bytes in a vector */
-extern void imswap2();  /* Swap bytes in a vector of 2-byte (short) integers */
-extern void imswap4();  /* Reverse bytes in a vector of 4-byte numbers */
-extern void imswap8();  /* Reverse bytes in a vector of 8-byte numbers */
-extern int imswapped(); /* Return 1 if machine byte order is not FITS order */
+/* 
+//Image pixel access subroutines in imio.c
+extern double getpix(); // Read one pixel from any data type 2-D array (0,0)
+extern double getpix1(); // Read one pixel from any data type 2-D array (1,1)
+extern void putpix();   // Write one pixel to any data type 2-D array (0,0)
+extern void putpix1();  // Write one pixel to any data type 2-D array (1,1)
+extern void addpix();   // Add to one pixel in any data type 2-D array (0,0)
+extern void addpix1();  // Add to one pixel in any data type 2-D array (1,1)
+extern void movepix();  // Move one pixel value between two 2-D arrays (0,0)
+extern void movepix1(); // Move one pixel value between two 2-D arrays (1,1)
+extern void getvec();   // Read vector from 2-D array
+extern void putvec();   // Write vector into 2-D array
+extern void imswap();   // Swap alternating bytes in a vector
+extern void imswap2();  // Swap bytes in a vector of 2-byte (short) integers
+extern void imswap4();  // Reverse bytes in a vector of 4-byte numbers
+extern void imswap8();  // Reverse bytes in a vector of 8-byte numbers
+extern int imswapped(); // Return 1 if machine byte order is not FITS order
+*/
+
+double getpix1(char *image, int bitpix, int w, int h, double bzero, double bscale, int x, int y);
+double getpix(char *image, int bitpix, int w, int h, double bzero, double bscale, int x, int y);
+void putpix1(char *image, int bitpix, int w, int h, double bzero, double bscale, int x, int y, double dpix);
+void putpix(char *image, int bitpix, int w, int h, double bzero, double bscale, int x, int y, double dpix);
+void addpix1(char *image, int bitpix, int w, int h, double bzero, double bscale, int x, int y, double dpix);
+void addpix(char *image, int bitpix, int w, int h, double bzero, double bscale, int x, int y, double dpix);
+void movepix(	char *image1, int bitpix1, int w1, int x1, int y1, char *image2, 
+							int bitpix2, int w2, int x2, int y2);
+void getvec(char *image, int bitpix, double bzero, double bscale, int pix1, int npix, double *dvec0);
+void putvec(char *image, int bitpix, double bzero, double bscale, int pix1, int npix, double *dvec);
+void imswap(int bitpix, char *string, int nbytes);
+void imswap2(char *string, int nbytes);
+void imswap4(char *string, int nbytes);
+void imswap8(char *string, int nbytes);
+int imswapped();
 
 #endif	/* imio_h_ */
 

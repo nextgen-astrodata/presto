@@ -15,7 +15,7 @@ void readinf(infodata * data, char *filenm)
    int ii;
    FILE *infofile;
 
-   infofilenm = malloc(strlen(filenm)+5);
+   infofilenm = (char *) malloc(strlen(filenm)+5);
    sprintf(infofilenm, "%s.inf", filenm);
    infofile = chkfopen(infofilenm, "r");
    free(infofilenm);
@@ -120,7 +120,7 @@ void writeinf(infodata * data)
    int itmp, ii;
    FILE *infofile;
 
-   infofilenm = malloc(strlen(data->name)+5);
+   infofilenm = (char*) malloc(strlen(data->name)+5);
    sprintf(infofilenm, "%s.inf", data->name);
    infofile = chkfopen(infofilenm, "w");
    free(infofilenm);

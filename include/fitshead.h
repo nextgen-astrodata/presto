@@ -34,8 +34,7 @@
 
 #include <sys/types.h>
 
-#ifdef __cplusplus /* C++ prototypes */
-extern "C" {
+//extern "C" {
 
 /* Subroutines in hget.c */
     int hgeti2(			/* Extract short value from FITS header */
@@ -58,7 +57,7 @@ extern "C" {
     int hgetr8c(			/* Extract double value from FITS header */
 	const char* hstring,	/* FITS header string */
 	const char* keyword,	/* FITS keyword */
-	const char mchar,	/* WCS to use */
+	unsigned char mchar,	/* WCS to use */
 	double* val);		/* double value (returned) */
     int hgetr8(			/* Extract double value from FITS header */
 	const char* hstring,	/* FITS header string */
@@ -108,9 +107,9 @@ extern "C" {
     char* ksearch(		/* Return pointer to keyword in FITS header */
 	const char* hstring,	/* FITS header string */
 	const char* keyword);	/* FITS keyword */
-    char *blsearch (
-	const char* hstring,	/* FITS header string */
-	const char* keyword);	/* FITS keyword */
+  	char *blsearch (
+	char* hstring,	/* FITS header string */
+	char* keyword);	/* FITS keyword */
 
     char *strsrch (		/* Find string s2 within string s1 */
 	const char* s1,		/* String to search */
@@ -118,7 +117,7 @@ extern "C" {
     char *strnsrch (		/* Find string s2 within string s1 */
 	const char* s1,		/* String to search */
 	const char* s2,		/* String to look for */
-	const int ls1);		/* Length of string being searched */
+	int ls1);		/* Length of string being searched */
 
     char *strcsrch (		/* Find string s2 within string s1 (no case) */
 	const char* s1,		/* String to search */
@@ -129,10 +128,10 @@ extern "C" {
 	const int ls1);		/* Length of string being searched */
 
     int hlength(		/* Set length of unterminated FITS header */
-        char    *header,        /* FITS header */
+        const char *header,        /* FITS header */
         const int lhead);	/* Allocated length of FITS header */
     int gethlength(		/* Get length of current FITS header */
-        char    *header);	/* FITS header */
+        const char *header);	/* FITS header */
 
     double str2ra(		/* Return RA in degrees from string */
 	const char* in);	/* Character string (hh:mm:ss.sss or dd.dddd) */
@@ -265,94 +264,10 @@ extern "C" {
         const double  num,	/* Number */
 	const int field,	/* Total field size in characters */
         const int ndec);	/* Number of decimal places */
-};
-#else /* __cplusplus */
+//};
 
 /* Subroutines in hget.c */
 
-/* Extract a value from a FITS header for given keyword */
-extern int hgeti4();	/* int (Multiple WCS) */
-extern int hgeti4c();	/* int */
-extern int hgeti2();	/* short */
-extern int hgetr4();	/* float */
-extern int hgetr8();	/* double */
-extern int hgetr8c();	/* double (Multiple WCS) */
-extern int hgetra();	/* Right ascension in degrees from string */
-extern int hgetdec();	/* Declination in degrees from string */
-extern int hgetdate();	/* Date in years from FITS date string */
-extern int hgetl();	/* T->1, F->0 from FITS logical entry */
-extern int hgets();	/* Previously allocated string */
-extern int hgetsc();	/* Previously allocated string (Multiple WCS) */
-extern int hgetm();	/* Previously allocated string from multiple keywords */
-extern char *hgetc();	/* Return pointer to string */
-extern int hgetndec();	/* Number of decimal places in keyword value */
-
-/* Subroutines to convert strings to RA and Dec in degrees */
-extern double str2ra();
-extern double str2dec();
-
-/* Check to see whether a string is a number or not */
-extern int isnum();
-extern int notnum();
-
-/* Find given keyword entry in FITS header */
-extern char *ksearch();
-
-/* Find beginning of fillable blank line before FITS header keyword */
-extern char *blsearch();
-
-/* Search for substring s2 within string s1 */
-extern char *strsrch ();	/* s1 null-terminated */
-extern char *strnsrch ();	/* s1 ls1 characters long */
-extern char *strcsrch ();	/* s1 null-terminated (case-insensitive) */
-extern char *strncsrch ();	/* s1 ls1 characters long (case-insensitive) */
-
-/* Set length of header which is not null-terminated */
-extern int hlength();
-
-/* Get length of current FITS header */
-extern int gethlength();
-
-/* Subroutines in iget.c */
-extern int mgets();	/* Previously allocated string from multiline keyword */
-extern int mgetr8();	/* double from multiline keyword */
-extern int mgeti4();	/* int from multiline keyword */
-extern int igeti4();	/* long integer from IRAF compound keyword value */
-extern int igetr4();	/* real from IRAF compound keyword value */
-extern int igetr8();	/* double from IRAF compound keyword value */
-extern int igets();	/* character string from IRAF compound keyword value */
-
-/* Subroutines in hput.c */
-
-/* Implant a value into a FITS header for given keyword */
-extern int hputi4();	/* int */
-extern int hputi2();	/* short */
-extern int hputr4();	/* float */
-extern int hputr8();	/* double */
-extern int hputnr8();	/* double with specified number of decimal places */
-extern int hputra();	/* Right ascension in degrees into hh:mm:ss.sss */
-extern int hputdec();	/* Declination in degrees into dd:mm:ss.ss */
-extern int hputl();	/* 0 -> F, else T FITS logical entry */
-extern int hputs();	/* Quoted character string */
-extern int hputm();	/* Quoted character string into mutiple keywords */
-extern int hputc();	/* Character string without quotes (returns 0 if OK) */
-extern int hputcom();	/* Comment after keyword=value (returns 0 if OK) */
-
-extern int hdel();	/* Delete a keyword line from a FITS header */
-extern int hadd();	/* Add a keyword line to a FITS header */
-extern int hchange();	/* Change a keyword name in a FITS header */
-
-/* Subroutines to convert RA and Dec in degrees to strings */
-extern void ra2str();
-extern void dec2str();
-
-extern void deg2str();
-extern void num2str();
-
-extern char *getltime(); /* Return current local time in ISO format */
-extern char *getutime(); /* Return current UT as an ISO-format string */
-
-#endif	/* __cplusplus */
 #endif	/* fitshead_h_ */
 
 /* Apr 26 1996	Add HGETDATE to get year from date string
