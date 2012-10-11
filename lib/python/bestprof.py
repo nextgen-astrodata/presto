@@ -67,10 +67,6 @@ class bestprof:
                             self.epochi, self.epochf = self.epochi_bary, self.epochf_bary
                     except ValueError:
                         pass
-                if ((not self.topo and line.startswith("# P_bary")) or
-                     (self.topo and line.startswith("# P_topo"))):
-                    self.p0 = float(line.split("=")[-1].split("+")[0])/1000.0
-                    self.p0err = float(line.split("=")[-1].split("+")[1][2:])/1000.0
                     continue
                 if line.startswith("# P_topo"):
                     try:

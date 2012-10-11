@@ -25,6 +25,8 @@ typedef struct s_Cmdline {
   char filterbankP;
   /***** -psrfits: Raw data in PSRFITS format */
   char psrfitsP;
+  /***** -lofar: Raw data in LOFAR format */
+  char lofarP;
   /***** -noweights: Do not apply PSRFITS weights */
   char noweightsP;
   /***** -noscales: Do not apply PSRFITS scales */
@@ -49,6 +51,10 @@ typedef struct s_Cmdline {
   int clipC;
   /***** -noclip: Do not clip the data.  (The default is to _always_ clip!) */
   char noclipP;
+  /***** -invert: For rawdata, flip (or invert) the band */
+  char invertP;
+  /***** -zerodm: Subtract the mean of all channels from each sample (i.e. remove zero DM) */
+  char zerodmP;
   /***** -xwin: Draw plots to the screen as well as a PS file */
   char xwinP;
   /***** -nocompute: Just plot and remake the mask */
@@ -104,8 +110,6 @@ typedef struct s_Cmdline {
 extern char *Program;
 extern void usage(void);
 extern /*@shared*/Cmdline *parseCmdline(int argc, char **argv);
-
-extern void showOptionValues(void);
 
 #endif
 

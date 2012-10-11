@@ -62,6 +62,10 @@ static Cmdline cmd = {
   /* clipC = */ 1,
   /***** -noclip: Do not clip the data.  (The default is to _always_ clip!) */
   /* noclipP = */ 0,
+  /***** -invert: For rawdata, flip (or invert) the band */
+  /* invertP = */ 0,
+  /***** -zerodm: Subtract the mean of all channels from each sample (i.e. remove zero DM) */
+  /* zerodmP = */ 0,
   /***** -xwin: Draw plots to the screen as well as a PS file */
   /* xwinP = */ 0,
   /***** -nocompute: Just plot and remake the mask */
@@ -811,295 +815,9 @@ catArgv(int argc, char **argv)
 /**********************************************************************/
 
 void
-showOptionValues(void)
-{
-  int i;
-
-  printf("Full command line is:\n`%s'\n", cmd.full_cmd_line);
-
-  /***** -o: Root of the output file names */
-  if( !cmd.outfileP ) {
-    printf("-o not found.\n");
-  } else {
-    printf("-o found:\n");
-    if( !cmd.outfileC ) {
-      printf("  no values\n");
-    } else {
-      printf("  value = `%s'\n", cmd.outfile);
-    }
-  }
-
-  /***** -pkmb: Raw data in Parkes Multibeam format */
-  if( !cmd.pkmbP ) {
-    printf("-pkmb not found.\n");
-  } else {
-    printf("-pkmb found:\n");
-  }
-
-  /***** -gmrt: Raw data in GMRT Phased Array format */
-  if( !cmd.gmrtP ) {
-    printf("-gmrt not found.\n");
-  } else {
-    printf("-gmrt found:\n");
-  }
-
-  /***** -bcpm: Raw data in Berkeley-Caltech Pulsar Machine (BPP) format */
-  if( !cmd.bcpmP ) {
-    printf("-bcpm not found.\n");
-  } else {
-    printf("-bcpm found:\n");
-  }
-
-  /***** -spigot: Raw data in Caltech-NRAO Spigot Card format */
-  if( !cmd.spigotP ) {
-    printf("-spigot not found.\n");
-  } else {
-    printf("-spigot found:\n");
-  }
-
-  /***** -filterbank: Raw data in SIGPROC filterbank format */
-  if( !cmd.filterbankP ) {
-    printf("-filterbank not found.\n");
-  } else {
-    printf("-filterbank found:\n");
-  }
-
-  /***** -psrfits: Raw data in PSRFITS format */
-  if( !cmd.psrfitsP ) {
-    printf("-psrfits not found.\n");
-  } else {
-    printf("-psrfits found:\n");
-  }
-
-  /***** -noweights: Do not apply PSRFITS weights */
-  if( !cmd.noweightsP ) {
-    printf("-noweights not found.\n");
-  } else {
-    printf("-noweights found:\n");
-  }
-
-  /***** -noscales: Do not apply PSRFITS scales */
-  if( !cmd.noscalesP ) {
-    printf("-noscales not found.\n");
-  } else {
-    printf("-noscales found:\n");
-  }
-
-  /***** -nooffsets: Do not apply PSRFITS offsets */
-  if( !cmd.nooffsetsP ) {
-    printf("-nooffsets not found.\n");
-  } else {
-    printf("-nooffsets found:\n");
-  }
-
-  /***** -wapp: Raw data in Wideband Arecibo Pulsar Processor (WAPP) format */
-  if( !cmd.wappP ) {
-    printf("-wapp not found.\n");
-  } else {
-    printf("-wapp found:\n");
-  }
-
-  /***** -window: Window correlator lags with a Hamming window before FFTing */
-  if( !cmd.windowP ) {
-    printf("-window not found.\n");
-  } else {
-    printf("-window found:\n");
-  }
-
-  /***** -numwapps: Number of WAPPs used with contiguous frequencies */
-  if( !cmd.numwappsP ) {
-    printf("-numwapps not found.\n");
-  } else {
-    printf("-numwapps found:\n");
-    if( !cmd.numwappsC ) {
-      printf("  no values\n");
-    } else {
-      printf("  value = `%d'\n", cmd.numwapps);
-    }
-  }
-
-  /***** -if: A specific IF to use if available (summed IFs is the default) */
-  if( !cmd.ifsP ) {
-    printf("-if not found.\n");
-  } else {
-    printf("-if found:\n");
-    if( !cmd.ifsC ) {
-      printf("  no values\n");
-    } else {
-      printf("  value = `%d'\n", cmd.ifs);
-    }
-  }
-
-  /***** -clip: Time-domain sigma to use for clipping (0.0 = no clipping, 6.0 = default */
-  if( !cmd.clipP ) {
-    printf("-clip not found.\n");
-  } else {
-    printf("-clip found:\n");
-    if( !cmd.clipC ) {
-      printf("  no values\n");
-    } else {
-      printf("  value = `%.40g'\n", cmd.clip);
-    }
-  }
-
-  /***** -noclip: Do not clip the data.  (The default is to _always_ clip!) */
-  if( !cmd.noclipP ) {
-    printf("-noclip not found.\n");
-  } else {
-    printf("-noclip found:\n");
-  }
-
-  /***** -xwin: Draw plots to the screen as well as a PS file */
-  if( !cmd.xwinP ) {
-    printf("-xwin not found.\n");
-  } else {
-    printf("-xwin found:\n");
-  }
-
-  /***** -nocompute: Just plot and remake the mask */
-  if( !cmd.nocomputeP ) {
-    printf("-nocompute not found.\n");
-  } else {
-    printf("-nocompute found:\n");
-  }
-
-  /***** -rfixwin: Show the RFI instances on screen */
-  if( !cmd.rfixwinP ) {
-    printf("-rfixwin not found.\n");
-  } else {
-    printf("-rfixwin found:\n");
-  }
-
-  /***** -rfips: Plot the RFI instances in a PS file */
-  if( !cmd.rfipsP ) {
-    printf("-rfips not found.\n");
-  } else {
-    printf("-rfips found:\n");
-  }
-
-  /***** -time: Seconds to integrate for stats and FFT calcs (use this or -blocks) */
-  if( !cmd.timeP ) {
-    printf("-time not found.\n");
-  } else {
-    printf("-time found:\n");
-    if( !cmd.timeC ) {
-      printf("  no values\n");
-    } else {
-      printf("  value = `%.40g'\n", cmd.time);
-    }
-  }
-
-  /***** -blocks: Number of blocks (usually 16-1024 samples) to integrate for stats and FFT calcs */
-  if( !cmd.blocksP ) {
-    printf("-blocks not found.\n");
-  } else {
-    printf("-blocks found:\n");
-    if( !cmd.blocksC ) {
-      printf("  no values\n");
-    } else {
-      printf("  value = `%d'\n", cmd.blocks);
-    }
-  }
-
-  /***** -timesig: The +/-sigma cutoff to reject time-domain chunks */
-  if( !cmd.timesigmaP ) {
-    printf("-timesig not found.\n");
-  } else {
-    printf("-timesig found:\n");
-    if( !cmd.timesigmaC ) {
-      printf("  no values\n");
-    } else {
-      printf("  value = `%.40g'\n", cmd.timesigma);
-    }
-  }
-
-  /***** -freqsig: The +/-sigma cutoff to reject freq-domain chunks */
-  if( !cmd.freqsigmaP ) {
-    printf("-freqsig not found.\n");
-  } else {
-    printf("-freqsig found:\n");
-    if( !cmd.freqsigmaC ) {
-      printf("  no values\n");
-    } else {
-      printf("  value = `%.40g'\n", cmd.freqsigma);
-    }
-  }
-
-  /***** -chanfrac: The fraction of bad channels that will mask a full interval */
-  if( !cmd.chantrigfracP ) {
-    printf("-chanfrac not found.\n");
-  } else {
-    printf("-chanfrac found:\n");
-    if( !cmd.chantrigfracC ) {
-      printf("  no values\n");
-    } else {
-      printf("  value = `%.40g'\n", cmd.chantrigfrac);
-    }
-  }
-
-  /***** -intfrac: The fraction of bad intervals that will mask a full channel */
-  if( !cmd.inttrigfracP ) {
-    printf("-intfrac not found.\n");
-  } else {
-    printf("-intfrac found:\n");
-    if( !cmd.inttrigfracC ) {
-      printf("  no values\n");
-    } else {
-      printf("  value = `%.40g'\n", cmd.inttrigfrac);
-    }
-  }
-
-  /***** -zapchan: Comma separated string (no spaces!) of channels to explicitly remove from analysis (zero-offset).  Ranges are specified by min:max[:step] */
-  if( !cmd.zapchanstrP ) {
-    printf("-zapchan not found.\n");
-  } else {
-    printf("-zapchan found:\n");
-    if( !cmd.zapchanstrC ) {
-      printf("  no values\n");
-    } else {
-      printf("  value = `%s'\n", cmd.zapchanstr);
-    }
-  }
-
-  /***** -zapints: Comma separated string (no spaces!) of intervals to explicitly remove from analysis (zero-offset).  Ranges are specified by min:max[:step] */
-  if( !cmd.zapintsstrP ) {
-    printf("-zapints not found.\n");
-  } else {
-    printf("-zapints found:\n");
-    if( !cmd.zapintsstrC ) {
-      printf("  no values\n");
-    } else {
-      printf("  value = `%s'\n", cmd.zapintsstr);
-    }
-  }
-
-  /***** -mask: File containing masking information to use */
-  if( !cmd.maskfileP ) {
-    printf("-mask not found.\n");
-  } else {
-    printf("-mask found:\n");
-    if( !cmd.maskfileC ) {
-      printf("  no values\n");
-    } else {
-      printf("  value = `%s'\n", cmd.maskfile);
-    }
-  }
-  if( !cmd.argc ) {
-    printf("no remaining parameters in argv\n");
-  } else {
-    printf("argv =");
-    for(i=0; i<cmd.argc; i++) {
-      printf(" `%s'", cmd.argv[i]);
-    }
-    printf("\n");
-  }
-}
-/**********************************************************************/
-
-void
 usage(void)
 {
-  fprintf(stderr,"%s","   -o outfile [-pkmb] [-gmrt] [-bcpm] [-spigot] [-filterbank] [-psrfits] [-noweights] [-noscales] [-nooffsets] [-wapp] [-window] [-numwapps numwapps] [-if ifs] [-clip clip] [-noclip] [-xwin] [-nocompute] [-rfixwin] [-rfips] [-time time] [-blocks blocks] [-timesig timesigma] [-freqsig freqsigma] [-chanfrac chantrigfrac] [-intfrac inttrigfrac] [-zapchan zapchanstr] [-zapints zapintsstr] [-mask maskfile] [--] infile ...\n");
+  fprintf(stderr,"%s","   -o outfile [-pkmb] [-gmrt] [-bcpm] [-spigot] [-filterbank] [-psrfits] [-noweights] [-noscales] [-nooffsets] [-wapp] [-window] [-numwapps numwapps] [-if ifs] [-clip clip] [-noclip] [-invert] [-zerodm] [-xwin] [-nocompute] [-rfixwin] [-rfips] [-time time] [-blocks blocks] [-timesig timesigma] [-freqsig freqsigma] [-chanfrac chantrigfrac] [-intfrac inttrigfrac] [-zapchan zapchanstr] [-zapints zapintsstr] [-mask maskfile] [--] infile ...\n");
   fprintf(stderr,"%s","      Examines radio data for narrow and wide band interference as well as problems with channels\n");
   fprintf(stderr,"%s","             -o: Root of the output file names\n");
   fprintf(stderr,"%s","                 1 char* value\n");
@@ -1123,6 +841,8 @@ usage(void)
   fprintf(stderr,"%s","                 1 float value between 0 and 1000.0\n");
   fprintf(stderr,"%s","                 default: `6.0'\n");
   fprintf(stderr,"%s","        -noclip: Do not clip the data.  (The default is to _always_ clip!)\n");
+  fprintf(stderr,"%s","        -invert: For rawdata, flip (or invert) the band\n");
+  fprintf(stderr,"%s","        -zerodm: Subtract the mean of all channels from each sample (i.e. remove zero DM)\n");
   fprintf(stderr,"%s","          -xwin: Draw plots to the screen as well as a PS file\n");
   fprintf(stderr,"%s","     -nocompute: Just plot and remake the mask\n");
   fprintf(stderr,"%s","       -rfixwin: Show the RFI instances on screen\n");
@@ -1152,7 +872,7 @@ usage(void)
   fprintf(stderr,"%s","                 1 char* value\n");
   fprintf(stderr,"%s","         infile: Input data file name(s).\n");
   fprintf(stderr,"%s","                 1...16384 values\n");
-  fprintf(stderr,"%s","  version: 14Oct11\n");
+  fprintf(stderr,"%s","  version: 11Oct12\n");
   fprintf(stderr,"%s","  ");
   exit(EXIT_FAILURE);
 }
@@ -1266,6 +986,16 @@ parseCmdline(int argc, char **argv)
 
     if( 0==strcmp("-noclip", argv[i]) ) {
       cmd.noclipP = 1;
+      continue;
+    }
+
+    if( 0==strcmp("-invert", argv[i]) ) {
+      cmd.invertP = 1;
+      continue;
+    }
+
+    if( 0==strcmp("-zerodm", argv[i]) ) {
+      cmd.zerodmP = 1;
       continue;
     }
 

@@ -790,6 +790,262 @@ catArgv(int argc, char **argv)
 /**********************************************************************/
 
 void
+showOptionValues(void)
+{
+  int i;
+
+  printf("Full command line is:\n`%s'\n", cmd.full_cmd_line);
+
+  /***** -page: Paginate the output like 'more' */
+  if( !cmd.pageP ) {
+    printf("-page not found.\n");
+  } else {
+    printf("-page found:\n");
+  }
+
+  /***** -byte: Raw data in byte format */
+  if( !cmd.bytP ) {
+    printf("-byte not found.\n");
+  } else {
+    printf("-byte found:\n");
+  }
+
+  /***** -b: Raw data in byte format */
+  if( !cmd.sbytP ) {
+    printf("-b not found.\n");
+  } else {
+    printf("-b found:\n");
+  }
+
+  /***** -float: Raw data in floating point format */
+  if( !cmd.fltP ) {
+    printf("-float not found.\n");
+  } else {
+    printf("-float found:\n");
+  }
+
+  /***** -f: Raw data in floating point format */
+  if( !cmd.sfltP ) {
+    printf("-f not found.\n");
+  } else {
+    printf("-f found:\n");
+  }
+
+  /***** -double: Raw data in double precision format */
+  if( !cmd.dblP ) {
+    printf("-double not found.\n");
+  } else {
+    printf("-double found:\n");
+  }
+
+  /***** -d: Raw data in double precision format */
+  if( !cmd.sdblP ) {
+    printf("-d not found.\n");
+  } else {
+    printf("-d found:\n");
+  }
+
+  /***** -fcomplex: Raw data in float-complex format */
+  if( !cmd.fcxP ) {
+    printf("-fcomplex not found.\n");
+  } else {
+    printf("-fcomplex found:\n");
+  }
+
+  /***** -fc: Raw data in float-complex format */
+  if( !cmd.sfcxP ) {
+    printf("-fc not found.\n");
+  } else {
+    printf("-fc found:\n");
+  }
+
+  /***** -dcomplex: Raw data in double-complex format */
+  if( !cmd.dcxP ) {
+    printf("-dcomplex not found.\n");
+  } else {
+    printf("-dcomplex found:\n");
+  }
+
+  /***** -dc: Raw data in double-complex format */
+  if( !cmd.sdcxP ) {
+    printf("-dc not found.\n");
+  } else {
+    printf("-dc found:\n");
+  }
+
+  /***** -short: Raw data in short format */
+  if( !cmd.shtP ) {
+    printf("-short not found.\n");
+  } else {
+    printf("-short found:\n");
+  }
+
+  /***** -s: Raw data in short format */
+  if( !cmd.sshtP ) {
+    printf("-s not found.\n");
+  } else {
+    printf("-s found:\n");
+  }
+
+  /***** -int: Raw data in integer format */
+  if( !cmd.igrP ) {
+    printf("-int not found.\n");
+  } else {
+    printf("-int found:\n");
+  }
+
+  /***** -i: Raw data in integer format */
+  if( !cmd.sigrP ) {
+    printf("-i not found.\n");
+  } else {
+    printf("-i found:\n");
+  }
+
+  /***** -long: Raw data in long format */
+  if( !cmd.lngP ) {
+    printf("-long not found.\n");
+  } else {
+    printf("-long found:\n");
+  }
+
+  /***** -l: Raw data in long format */
+  if( !cmd.slngP ) {
+    printf("-l not found.\n");
+  } else {
+    printf("-l found:\n");
+  }
+
+  /***** -rzwcand: Raw data in rzw search candidate format */
+  if( !cmd.rzwP ) {
+    printf("-rzwcand not found.\n");
+  } else {
+    printf("-rzwcand found:\n");
+  }
+
+  /***** -rzw: Raw data in rzw search candidate format */
+  if( !cmd.srzwP ) {
+    printf("-rzw not found.\n");
+  } else {
+    printf("-rzw found:\n");
+  }
+
+  /***** -bincand: Raw data in bin search candidate format */
+  if( !cmd.binP ) {
+    printf("-bincand not found.\n");
+  } else {
+    printf("-bincand found:\n");
+  }
+
+  /***** -bin: Raw data in bin search candidate format */
+  if( !cmd.sbinP ) {
+    printf("-bin not found.\n");
+  } else {
+    printf("-bin found:\n");
+  }
+
+  /***** -position: Raw data in position struct format */
+  if( !cmd.posP ) {
+    printf("-position not found.\n");
+  } else {
+    printf("-position found:\n");
+  }
+
+  /***** -pos: Raw data in position struct format */
+  if( !cmd.sposP ) {
+    printf("-pos not found.\n");
+  } else {
+    printf("-pos found:\n");
+  }
+
+  /***** -pkmb: Raw data in Parkes Multibeam format */
+  if( !cmd.pkmbP ) {
+    printf("-pkmb not found.\n");
+  } else {
+    printf("-pkmb found:\n");
+  }
+
+  /***** -bcpm: Raw data in BCPM format */
+  if( !cmd.bcpmP ) {
+    printf("-bcpm not found.\n");
+  } else {
+    printf("-bcpm found:\n");
+  }
+
+  /***** -wapp: Raw data in WAPP format */
+  if( !cmd.wappP ) {
+    printf("-wapp not found.\n");
+  } else {
+    printf("-wapp found:\n");
+  }
+
+  /***** -spigot: Raw data in Spigot Card format */
+  if( !cmd.spigotP ) {
+    printf("-spigot not found.\n");
+  } else {
+    printf("-spigot found:\n");
+  }
+
+  /***** -filterbank: Raw data in SIGPROC filterbank format */
+  if( !cmd.filterbankP ) {
+    printf("-filterbank not found.\n");
+  } else {
+    printf("-filterbank found:\n");
+  }
+
+  /***** -psrfits: Raw data in PSRFITS format */
+  if( !cmd.psrfitsP ) {
+    printf("-psrfits not found.\n");
+  } else {
+    printf("-psrfits found:\n");
+  }
+
+  /***** -fortran: Raw data was written by a fortran program */
+  if( !cmd.fortranP ) {
+    printf("-fortran not found.\n");
+  } else {
+    printf("-fortran found:\n");
+  }
+
+  /***** -index: The range of objects to display */
+  if( !cmd.indexP ) {
+    printf("-index not found.\n");
+  } else {
+    printf("-index found:\n");
+    if( !cmd.indexC ) {
+      printf("  no values\n");
+    } else {
+      printf("  values =");
+      for(i=0; i<cmd.indexC; i++) {
+        printf(" `%d'", cmd.index[i]);
+      }
+      printf("\n");
+    }
+  }
+
+  /***** -nph: 0th FFT bin amplitude (for 'RZW' data) */
+  if( !cmd.nphP ) {
+    printf("-nph not found.\n");
+  } else {
+    printf("-nph found:\n");
+    if( !cmd.nphC ) {
+      printf("  no values\n");
+    } else {
+      printf("  value = `%.40g'\n", cmd.nph);
+    }
+  }
+  if( !cmd.argc ) {
+    printf("no remaining parameters in argv\n");
+  } else {
+    printf("argv =");
+    for(i=0; i<cmd.argc; i++) {
+      printf(" `%s'", cmd.argv[i]);
+    }
+    printf("\n");
+  }
+}
+/**********************************************************************/
+
+void
 usage(void)
 {
   fprintf(stderr,"%s","   [-page] [-byte] [-b] [-float] [-f] [-double] [-d] [-fcomplex] [-fc] [-dcomplex] [-dc] [-short] [-s] [-int] [-i] [-long] [-l] [-rzwcand] [-rzw] [-bincand] [-bin] [-position] [-pos] [-pkmb] [-bcpm] [-wapp] [-spigot] [-filterbank] [-psrfits] [-lofar] [-fortran] [-index [index]] [-nph nph] [--] file\n");
