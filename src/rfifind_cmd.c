@@ -38,6 +38,8 @@ static Cmdline cmd = {
   /* filterbankP = */ 0,
   /***** -psrfits: Raw data in PSRFITS format */
   /* psrfitsP = */ 0,
+  /***** -lofar: Raw data in LOFAR format */
+  /* lofarP = */ 0,
   /***** -noweights: Do not apply PSRFITS weights */
   /* noweightsP = */ 0,
   /***** -noscales: Do not apply PSRFITS scales */
@@ -817,7 +819,7 @@ catArgv(int argc, char **argv)
 void
 usage(void)
 {
-  fprintf(stderr,"%s","   -o outfile [-pkmb] [-gmrt] [-bcpm] [-spigot] [-filterbank] [-psrfits] [-noweights] [-noscales] [-nooffsets] [-wapp] [-window] [-numwapps numwapps] [-if ifs] [-clip clip] [-noclip] [-invert] [-zerodm] [-xwin] [-nocompute] [-rfixwin] [-rfips] [-time time] [-blocks blocks] [-timesig timesigma] [-freqsig freqsigma] [-chanfrac chantrigfrac] [-intfrac inttrigfrac] [-zapchan zapchanstr] [-zapints zapintsstr] [-mask maskfile] [--] infile ...\n");
+  fprintf(stderr,"%s","   -o outfile [-pkmb] [-gmrt] [-bcpm] [-spigot] [-filterbank] [-psrfits] [-lofar] [-noweights] [-noscales] [-nooffsets] [-wapp] [-window] [-numwapps numwapps] [-if ifs] [-clip clip] [-noclip] [-invert] [-zerodm] [-xwin] [-nocompute] [-rfixwin] [-rfips] [-time time] [-blocks blocks] [-timesig timesigma] [-freqsig freqsigma] [-chanfrac chantrigfrac] [-intfrac inttrigfrac] [-zapchan zapchanstr] [-zapints zapintsstr] [-mask maskfile] [--] infile ...\n");
   fprintf(stderr,"%s","      Examines radio data for narrow and wide band interference as well as problems with channels\n");
   fprintf(stderr,"%s","             -o: Root of the output file names\n");
   fprintf(stderr,"%s","                 1 char* value\n");
@@ -827,6 +829,7 @@ usage(void)
   fprintf(stderr,"%s","        -spigot: Raw data in Caltech-NRAO Spigot Card format\n");
   fprintf(stderr,"%s","    -filterbank: Raw data in SIGPROC filterbank format\n");
   fprintf(stderr,"%s","       -psrfits: Raw data in PSRFITS format\n");
+  fprintf(stderr,"%s","         -lofar: Raw data in LOFAR format\n");
   fprintf(stderr,"%s","     -noweights: Do not apply PSRFITS weights\n");
   fprintf(stderr,"%s","      -noscales: Do not apply PSRFITS scales\n");
   fprintf(stderr,"%s","     -nooffsets: Do not apply PSRFITS offsets\n");
@@ -926,6 +929,11 @@ parseCmdline(int argc, char **argv)
 
     if( 0==strcmp("-psrfits", argv[i]) ) {
       cmd.psrfitsP = 1;
+      continue;
+    }
+
+    if( 0==strcmp("-lofar", argv[i]) ) {
+      cmd.lofarP = 1;
       continue;
     }
 
