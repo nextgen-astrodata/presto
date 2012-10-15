@@ -52,7 +52,8 @@ LOFARDALINCDIR=-L/opt/cep/dal/current/include		# DAL include directory on CEP
 LOFARDALLIBDIR=-L/opt/cep/dal/current/lib/ 		# DAL lib directory on CEP
 
 # The standard PRESTO libraries to link into executables
-PRESTOLINK = $(OTHERLIBDIR) ${LOFARDALLIBDIR}  -L$(PRESTO)/lib -lpresto $(FFTLINK) -llofardal
+PRESTOLINK = $(OTHERLIBDIR) -L$(PRESTO)/lib -lpresto $(FFTLINK) 
+LOFARLINK = ${LOFARDALLIBDIR} -llofardal
 
 # When modifying the CLIG files, the is the location of the clig binary
 CLIG = clig
@@ -99,7 +100,9 @@ PRESTOOBJS = amoeba.o atwood.o barycenter.o birdzap.o cand_output.o\
 	twopass_real_inv.o vectors.o multifiles.o mask.o\
 	fitsfile.o hget.o hput.o imio.o djcl.o
 
-INSTRUMENTOBJS = backend_common.o zerodm.o sigproc_fb.o psrfits.o
+LOFAROBJS = lofar_bf.o
+
+INSTRUMENTOBJS = backend_common.o zerodm.o sigproc_fb.o psrfits.o ${LOFAROBJS}
 
 PLOT2DOBJS = powerplot.o xyline.o
 

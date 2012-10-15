@@ -324,7 +324,8 @@ int main(int argc, char **argv)
        struct spectra_info s;
        
        // -1 causes the data to determine if we use weights, scales, & offsets
-       s.apply_weight = s.apply_scale = s.apply_offset = -1;
+/* TODO: Scott has to fix this       
+			s.apply_weight = s.apply_scale = s.apply_offset = -1;
        if (read_PSRFITS_files(cmd->argv, cmd->argc, &s)) {
            print_PSRFITS_info(&s);
            printf("\n");
@@ -332,17 +333,19 @@ int main(int argc, char **argv)
            printf("\n  Error reading PSRFITS file!\n\n");
        }
        exit(0);
+*/
    }
 
   if (cmd->lofarP) {
-      struct lofarbf;
+      //struct lofarbf;
+			struct spectra_info s;
   
-      printf("LOFAR file provided\n");	/* DEBUG */
+			print_LOFARBF_info(s);
   }
 
    if (cmd->spigotP) {
       SPIGOT_INFO spigot;
-
+			/*
       if (read_SPIGOT_header(cmd->argv[0], &spigot)) {
          print_SPIGOT_header(&spigot);
          printf("\n");
@@ -350,12 +353,14 @@ int main(int argc, char **argv)
          printf("\n  Error reading spigot file!\n\n");
       }
       exit(0);
-   }
+   		*/
+	 }
 
    if (cmd->filterbankP) {
       sigprocfb fb;
 
       infile = chkfopen(cmd->argv[0], "rb");
+			/*
       if (read_filterbank_header(&fb, infile)) {
          print_filterbank_header(&fb);
          printf("\n");
@@ -363,11 +368,12 @@ int main(int argc, char **argv)
          printf("\n  Error reading SIGPROC filterbank file!\n\n");
       }
       exit(0);
-   }
+		 */   
+	}
 
    if (cmd->wappP) {
        struct HEADERP *hdr = NULL;
-       
+       /*
        infile = chkfopen(cmd->argv[0], "rb");
        hdr = head_parse(infile);
        set_WAPP_HEADER_version(hdr);
@@ -378,15 +384,14 @@ int main(int argc, char **argv)
            printf("\n  Error reading WAPP file!\n\n");
        }
        exit(0);
-   }
+			*/   
+	 }
 
    /* LOFAR BFwriter files */
    if(cmd->lofarP) {
-      printf("We have a cmd->lofarP!\n");
-
       // Open HDF5 file using DAL2
-
-      exit(0);  /* DBEUG */
+			print_LOFARBF_info();
+//      exit(0);  /* DBEUG */
    }
 
    /* Open the file */
@@ -546,7 +551,7 @@ int PKMBHDR_print(long count, char *obj_ptr)
 
    object = (PKMB_tapehdr *) obj_ptr;
    printf("\n%ld:", count + 1);
-   print_PKMB_hdr(object);
+   /*print_PKMB_hdr(object); */
    return 0;
 }
 
@@ -556,7 +561,7 @@ int BCPMHDR_print(long count, char *obj_ptr)
 
    object = (BPP_SEARCH_HEADER *) obj_ptr;
    printf("\n%ld:", count + 1);
-   print_BPP_hdr(object);
+   /*print_BPP_hdr(object);*/
    return 0;
 }
 
@@ -593,13 +598,14 @@ int PSRFITSHDR_print(long count, char *obj_ptr)
 */
 int LOFARHDR_print()
 {
-  // Open BF file using DAL
+	print_LOFARBF_info();
+
   return 0;
 }
 
 int SIGPROCHDR_print(long count, char *obj_ptr)
 {
    printf("\n%ld:", count + 1);
-   print_filterbank_header((sigprocfb *) obj_ptr);
+   /* print_filterbank_header((sigprocfb *) obj_ptr); */
    return 0;
 }

@@ -22,7 +22,7 @@ extern short transpose_float(float *a, int nx, int ny, unsigned char *move,
 extern double DATEOBS_to_MJD(char *dateobs, int *mjd_day, double *mjd_fracday);
 extern void read_filterbank_files(struct spectra_info *s);
 extern void read_PSRFITS_files(struct spectra_info *s);
-
+extern void read_LOFARBF_files(struct spectra_info *s);
 
 void psrdatatype_description(char *outstr, psrdatatype ptype)
 {
@@ -59,6 +59,7 @@ void read_rawdata_files(struct spectra_info *s)
 {
     if (s->datatype==SIGPROCFB) read_filterbank_files(s);
     else if (s->datatype==PSRFITS) read_PSRFITS_files(s);
+		else if (s->datatype==LOFARBF) read_LOFARBF_files(s);
     else if (s->datatype==SCAMP) exit(1);
     else if (s->datatype==BPP) exit(1);
     else if (s->datatype==WAPP) exit(1);
