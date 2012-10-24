@@ -95,7 +95,7 @@ void identify_psrdatatype(struct spectra_info *s, int output)
                  strcmp(suffix, "fb") == 0) s->datatype = SIGPROCFB;
         else if (strcmp(suffix, "fits") == 0) {
             if (strstr(root, "spigot_5") != NULL) s->datatype = SPIGOT;
-//            else if (is_PSRFITS(s->filenames[0])) s->datatype = PSRFITS;
+            else if (is_PSRFITS(s->filenames[0])) s->datatype = PSRFITS;
             else s->datatype = PSRFITS;
         }
         else if (strcmp(suffix, "pkmb") == 0) s->datatype = SCAMP;
@@ -421,14 +421,15 @@ int read_rawblocks(float *fdata, int numsubints, struct spectra_info *s, int *pa
 int read_psrdata(float *fdata, int numspect, struct spectra_info *s, 
                  int *delays, int *padding,
                  int *maskchans, int *nummasked, mask * obsmask)
-// This routine reads numspect from the raw pulsar data defined in
-// "s". Time delays and a mask are applied to each channel.  It
-// returns the # of points read if successful, 0 otherwise.  If
-// padding is returned as 1, then padding was added and statistics
-// should not be calculated.  maskchans is an array of length numchans
-// contains a list of the number of channels that were masked.  The #
-// of channels masked is returned in nummasked.  obsmask is the mask
-// structure to use for masking.
+/* This routine reads numspect from the raw pulsar data defined in
+	 "s". Time delays and a mask are applied to each channel.  It
+	 returns the # of points read if successful, 0 otherwise.  If
+   padding is returned as 1, then padding was added and statistics
+   should not be calculated.  maskchans is an array of length numchans
+   contains a list of the number of channels that were masked.  The #
+   of channels masked is returned in nummasked.  obsmask is the mask
+   structure to use for masking.
+*/
 {
    int ii, jj, numread = 0, offset;
    double starttime = 0.0;
@@ -506,12 +507,13 @@ int read_psrdata(float *fdata, int numspect, struct spectra_info *s,
 
 
 void get_channel(float chandat[], int channum, int numsubints, float rawdata[], struct spectra_info *s)
-// Return the values for channel 'channum' in 'chandat' of a block of
-// 'numsubints' floating-point spectra data stored in 'rawdata'.
-// 'rawdata' should have been initialized and then filled using
-// read_rawblocks(), and 'chandat' must have at least 'numsubints' *
-// 's->spectra_per_subint' spaces.  Channel 0 is assumed to be the
-// lowest freq channel.
+/* Return the values for channel 'channum' in 'chandat' of a block of
+   'numsubints' floating-point spectra data stored in 'rawdata'.
+   'rawdata' should have been initialized and then filled using
+   read_rawblocks(), and 'chandat' must have at least 'numsubints' *
+   's->spectra_per_subint' spaces.  Channel 0 is assumed to be the
+   lowest freq channel.
+*/
 {
    int ii, jj;
 
@@ -528,18 +530,19 @@ void get_channel(float chandat[], int channum, int numsubints, float rawdata[], 
 int prep_subbands(float *fdata, float *rawdata, int *delays, int numsubbands,
                   struct spectra_info *s, int transpose, 
                   int *maskchans, int *nummasked, mask * obsmask)
-// This routine preps a block of raw spectra for subbanding.  It uses
-// dispersion delays in 'delays' to de-disperse the data into
-// 'numsubbands' subbands.  It stores the resulting data in vector
-// 'fdata' of length 'numsubbands' * 's->spectra_per_subint'.  The low
-// freq subband is stored first, then the next highest subband etc,
-// with 's->spectra_per_subint' floating points per subband. It
-// returns the # of points read if succesful, 0 otherwise.
-// 'maskchans' is an array of length numchans which contains a list of
-// the number of channels that were masked.  The # of channels masked
-// is returned in 'nummasked'.  'obsmask' is the mask structure to use
-// for masking.  If 'transpose'==0, the data will be kept in time
-// order instead of arranged by subband as above.
+/* This routine preps a block of raw spectra for subbanding.  It uses
+   dispersion delays in 'delays' to de-disperse the data into
+   'numsubbands' subbands.  It stores the resulting data in vector
+   'fdata' of length 'numsubbands' * 's->spectra_per_subint'.  The low
+   freq subband is stored first, then the next highest subband etc,
+   with 's->spectra_per_subint' floating points per subband. It
+   returns the # of points read if succesful, 0 otherwise.
+   'maskchans' is an array of length numchans which contains a list of
+   the number of channels that were masked.  The # of channels masked
+   is returned in 'nummasked'.  'obsmask' is the mask structure to use
+   for masking.  If 'transpose'==0, the data will be kept in time
+   order instead of arranged by subband as above.
+*/
 {
    int ii, jj, trtn, offset;
    double starttime = 0.0;
@@ -613,20 +616,21 @@ int prep_subbands(float *fdata, float *rawdata, int *delays, int numsubbands,
 int read_subbands(float *fdata, int *delays, int numsubbands,
                   struct spectra_info *s, int transpose, int *padding,
                   int *maskchans, int *nummasked, mask * obsmask)
-// This routine reads a spectral block/subint from the input raw data
-// files. The routine uses dispersion delays in 'delays' to
-// de-disperse the data into 'numsubbands' subbands.  It stores the
-// resulting data in vector 'fdata' of length 'numsubbands' *
-// 's->spectra_per_subint'.  The low freq subband is stored first,
-// then the next highest subband etc, with 's->spectra_per_subint'
-// floating points per subband.  It returns the # of points read if
-// successful, 0 otherwise. If padding is returned as 1, then padding
-// was added and statistics should not be calculated.  'maskchans' is
-// an array of length numchans which contains a list of the number of
-// channels that were masked.  The # of channels masked is returned in
-// 'nummasked'.  'obsmask' is the mask structure to use for masking.
-// If 'transpose'==0, the data will be kept in time order instead of
-// arranged by subband as above.
+/* This routine reads a spectral block/subint from the input raw data
+   files. The routine uses dispersion delays in 'delays' to
+   de-disperse the data into 'numsubbands' subbands.  It stores the
+   resulting data in vector 'fdata' of length 'numsubbands' *
+   's->spectra_per_subint'.  The low freq subband is stored first,
+   then the next highest subband etc, with 's->spectra_per_subint'
+   floating points per subband.  It returns the # of points read if
+   successful, 0 otherwise. If padding is returned as 1, then padding
+   was added and statistics should not be calculated.  'maskchans' is
+   an array of length numchans which contains a list of the number of
+   channels that were masked.  The # of channels masked is returned in
+   'nummasked'.  'obsmask' is the mask structure to use for masking.
+   If 'transpose'==0, the data will be kept in time order instead of
+   arranged by subband as above.
+*/
 {
    static int firsttime = 1;
    static float *frawdata;
@@ -658,7 +662,7 @@ int read_subbands(float *fdata, int *delays, int numsubbands,
 
 
 void flip_band(float *fdata, struct spectra_info *s)
-// Flip the bandpass
+/* Flip the bandpass */
 {
     float ftmp;
     int ii, jj, looffs, hioffs;

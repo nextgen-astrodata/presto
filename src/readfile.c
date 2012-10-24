@@ -11,10 +11,6 @@
 #include "sigproc_fb.h"
 #include "readfile_cmd.h"
 
-#if WITH_DAL
-#include <dal/lofar/CLA_File.h>
-#endif
-
 /* #define DEBUG */
 
 #define PAGELEN 32              /* Set the page length to 32 lines */
@@ -88,7 +84,6 @@ int objs_at_a_time[NUMTYPES] = {
 };
 
 /* You don't see this every day -- An array of pointers to functions: */
-
 int (*print_funct_ptrs[NUMTYPES]) () = {BYTE_print,
                                         FLOAT_print,
                                         DOUBLE_print,
@@ -105,8 +100,8 @@ int (*print_funct_ptrs[NUMTYPES]) () = {BYTE_print,
                                         WAPPHDR_print, 
                                         SPIGOTHDR_print, 
                                         SIGPROCHDR_print,
-                                        PSRFITSHDR_print,												       
-                                        LOFARHDR_print};
+                                        PSRFITSHDR_print}; //,												       
+                                      //  LOFARHDR_print};
 
 /* A few global variables */
 
@@ -336,11 +331,11 @@ int main(int argc, char **argv)
 */
    }
 
+  /* LOFAR BFwriter files */
   if (cmd->lofarP) {
       //struct lofarbf;
-			struct spectra_info s;
-  
-			print_LOFARBF_info(s);
+	//		struct spectra_info s;
+  //			print_LOFARBF_info(s);
   }
 
    if (cmd->spigotP) {
@@ -386,13 +381,6 @@ int main(int argc, char **argv)
        exit(0);
 			*/   
 	 }
-
-   /* LOFAR BFwriter files */
-   if(cmd->lofarP) {
-      // Open HDF5 file using DAL2
-			print_LOFARBF_info();
-//      exit(0);  /* DBEUG */
-   }
 
    /* Open the file */
 
@@ -598,7 +586,8 @@ int PSRFITSHDR_print(long count, char *obj_ptr)
 */
 int LOFARHDR_print()
 {
-	print_LOFARBF_info();
+	struct spectra_info *s;
+//	print_LOFARBF_info(s);
 
   return 0;
 }

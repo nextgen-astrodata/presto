@@ -48,12 +48,16 @@ OTHERINCDIR = -I$(SYSDIR)/include/glib-2.0 -I$(SYSDIR)/lib/glib-2.0/include -I$(
 OTHERLIBDIR =
 
 #DAL2.5 include directory and library directory
-LOFARDALINCDIR=-L/opt/cep/dal/current/include		# DAL include directory on CEP
-LOFARDALLIBDIR=-L/opt/cep/dal/current/lib/ 		# DAL lib directory on CEP
+#LOFARDALINCDIR=-I/opt/cep/dal/current/include	# DAL include directory on CEP
+#LOFARDALLIBDIR=-L/opt/cep/dal/current/lib/ 		# DAL lib directory on CEP
+LOFARDALINCDIR=/home/duscha/DAL/include
+LOFARDALLIBDIR=/home/duscha/DAL/lib/
+
 
 # The standard PRESTO libraries to link into executables
-PRESTOLINK = $(OTHERLIBDIR) -L$(PRESTO)/lib -lpresto $(FFTLINK) 
-LOFARLINK = ${LOFARDALLIBDIR} -llofardal
+#PRESTOLINK = -L$(OTHERLIBDIR) -L$(PRESTO)/lib -lpresto $(FFTLINK) 
+PRESTOLINK = -L$(PRESTO)/lib -lpresto $(FFTLINK)
+LOFARLINK = -L${LOFARDALLIBDIR} -llofardal -llofarpresto
 
 # When modifying the CLIG files, the is the location of the clig binary
 CLIG = clig
@@ -67,9 +71,14 @@ FC = gfortran
 #FC = g77
 CFLAGS = -I$(PRESTO)/include $(OTHERINCDIR) $(PGPLOTINCDIR) $(FFTINCDIR) \
 	-D$(FFTTYPE) -DUSEMMAP -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 \
-	-O3 -ffast-math -Wall -W -fPIC #-finstrument-functions	# tracing
-#	-g -Wall -W
+	-g -ffast-math -Wall -W -fPIC
 CLINKFLAGS = $(CFLAGS)
+
+# Compiler and flags for LOFAR lib, liblofarpresto
+CXX = g++
+CXXFLAGS = -g -Wall -fPIC -I$(PRESTO)/include
+CXXLINKFLAGS = $(CXXFLAGS)
+
 # NOTE:  Be careful of upping the optimization on the
 #        FFLAGs.  Certain compilers (i.e. on Intel Macs) will
 #        cause errors for the code in least_squares.f
@@ -77,6 +86,7 @@ FFLAGS = -g -fPIC
 FLINKFLAGS = $(FFLAGS)
 LINKCOMMAND1 = $(CC) $(LIBCMD) -o
 LINKCOMMAND2 = ar rcs
+LINKCOMMANDCXX = $(CXX) $(LIBCMD) -o
 
 # Add to the search path for the executables
 VPATH = ../lib:../bin
@@ -102,7 +112,24 @@ PRESTOOBJS = amoeba.o atwood.o barycenter.o birdzap.o cand_output.o\
 
 LOFAROBJS = lofar_bf.o
 
-INSTRUMENTOBJS = backend_common.o zerodm.o sigproc_fb.o psrfits.o ${LOFAROBJS}
+lofar_bf.o: lofar_bf.cc
+	$(CXX) -c $(CXXFLAGS) -I$(LOFARDALINCDIR) -I$(PRESTO)/include $^ -o $@
+#	$(CXX) $(CXXFLAGS) -I$(LOFARDALINCDIR) -I$(PRESTO)/include $(LOFARDALLIBDIR) $^ -o $@
+
+#liblofarpresto: liblofarpresto$(LIBSUFFIX)
+#
+#liblofarpresto$(LIBSUFFIX): ${LOFAROBJS}
+#	$(LINKCOMMANDCXX)  $(PRESTO)/lib/$@ $^ 
+
+
+liblofarpresto: liblofarpresto.a
+
+liblofarpresto.a: ${LOFAROBJS}
+	#$(CXX) -o $(PRESTO)/lib/$@ $^ -L${LOFARDALLIBDIR} -llofardal
+	$(LINKCOMMANDCXX) $(PRESTO)/lib/$@ $^ 
+
+
+INSTRUMENTOBJS = backend_common.o zerodm.o sigproc_fb.o psrfits.o
 
 PLOT2DOBJS = powerplot.o xyline.o
 
@@ -118,7 +145,7 @@ BINARIES = makedata makeinf mjd2cal realfft quicklook\
 	rfifind zapbirds explorefft exploredat\
 	weight_psrfits fitsdelrow fitsdelcol psrfits_dumparrays
 
-all: libpresto slalib binaries
+all: libpresto liblofarpresto slalib binaries
 
 # Default indentation is K&R style with no-tabs,
 # an indentation level of 4 (default), and a line-length of 85
@@ -142,7 +169,7 @@ timetest:
 libpresto: libpresto$(LIBSUFFIX)
 
 libpresto$(LIBSUFFIX): $(PRESTOOBJS)
-	$(LINKCOMMAND1) $(PRESTO)/lib/$@ $(PRESTOOBJS) $(FFTLINK)
+	$(LINKCOMMANDCXX) $(PRESTO)/lib/$@ $(PRESTOOBJS) $(FFTLINK)
 
 slalib: libsla$(LIBSUFFIX)
 	cd slalib ; $(FC) -o sla_test sla_test.f -fno-second-underscore -L$(PRESTO)/lib -lsla
@@ -256,8 +283,8 @@ testbinresp: testbinresp.o $(PLOT2DOBJS)
 quicklook: quicklook.o
 	$(CC) $(CLINKFLAGS) -o $(PRESTO)/bin/$@ quicklook.o $(PRESTOLINK) -lm
 
-readfile: readfile_cmd.c readfile_cmd.o readfile.o $(INSTRUMENTOBJS)
-	$(CC) $(CLINKFLAGS) -o $(PRESTO)/bin/$@ readfile.o readfile_cmd.o $(INSTRUMENTOBJS) $(PRESTOLINK) -lcfitsio -lm
+readfile: readfile_cmd.c readfile_cmd.o readfile.o $(INSTRUMENTOBJS) liblofarpresto
+	$(CXX) $(CLINKFLAGS) -o $(PRESTO)/bin/$@ readfile.o readfile_cmd.o $(INSTRUMENTOBJS) $(PRESTOLINK) $(LOFARLINK) -lcfitsio -lm
 
 realfft: realfft_cmd.c realfft_cmd.o realfft.o
 	$(CC) $(CLINKFLAGS) -o $(PRESTO)/bin/$@ realfft.o realfft_cmd.o $(PRESTOLINK) -lm
@@ -313,7 +340,7 @@ clean:
 
 cleaner: clean
 	cd ../bin ; rm -f $(BINARIES)
-	rm -f $(PRESTO)/lib/libpresto.* $(PRESTO)/lib/libsla.*
+	rm -f $(PRESTO)/lib/libpresto.* $(PRESTO)/lib/libsla.* $(PRESTO)/lib/liblofar.*
 
 squeaky:  cleaner
 	rm -f *.dat *.fft *.inf fftw_wisdom.txt
