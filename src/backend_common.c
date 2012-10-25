@@ -4,6 +4,8 @@
 #include "backend_common.h"
 #include "misc_utils.h"
 
+#include "lofar_bf.h"
+
 static long long currentspectra = 0;
 static int using_MPI = 0;
 

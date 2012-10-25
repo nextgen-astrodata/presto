@@ -321,7 +321,7 @@ int main(int argc, char **argv)
        // -1 causes the data to determine if we use weights, scales, & offsets
 /* TODO: Scott has to fix this       
 			s.apply_weight = s.apply_scale = s.apply_offset = -1;
-       if (read_PSRFITS_files(cmd->argv, cmd->argc, &s)) {
+       if (ls_PSRFITS_files(cmd->argv, cmd->argc, &s)) {
            print_PSRFITS_info(&s);
            printf("\n");
        } else {
@@ -333,9 +333,9 @@ int main(int argc, char **argv)
 
   /* LOFAR BFwriter files */
   if (cmd->lofarP) {
-      //struct lofarbf;
-	//		struct spectra_info s;
-  //			print_LOFARBF_info(s);
+		struct spectra_info s;
+  	//print_LOFARBF_info(s);
+    exit(0);
   }
 
    if (cmd->spigotP) {
