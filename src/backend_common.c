@@ -30,6 +30,7 @@ void psrdatatype_description(char *outstr, psrdatatype ptype)
 {
     if (ptype==SIGPROCFB)    strcpy(outstr, "SIGPROC filterbank");
     else if (ptype==PSRFITS) strcpy(outstr, "PSRFITS");
+		else if (ptype==LOFARBF) strcpy(outstr, "LOFARBF");
     else if (ptype==SCAMP)   strcpy(outstr, "SCAMP 1-bit filterbank");
     else if (ptype==BPP)     strcpy(outstr, "GBT BCPM");
     else if (ptype==WAPP)    strcpy(outstr, "GBT/Caltech Spigot");

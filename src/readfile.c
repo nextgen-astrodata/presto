@@ -100,8 +100,8 @@ int (*print_funct_ptrs[NUMTYPES]) () = {BYTE_print,
                                         WAPPHDR_print, 
                                         SPIGOTHDR_print, 
                                         SIGPROCHDR_print,
-                                        PSRFITSHDR_print}; //,												       
-                                      //  LOFARHDR_print};
+                                        PSRFITSHDR_print,												       
+                                        LOFARHDR_print};
 
 /* A few global variables */
 
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
       index = PSRFITSHDR;
    else if (cmd->lofarP)
       index = LOFARHDR;
-   
+
    /* Try to determine the data type from the file name */
 
    if (index == -1) {
@@ -285,8 +285,9 @@ int main(int argc, char **argv)
                           "\nUsing N = %ld, dt = %g, and DC Power = %f\n\n",
                           N, dt, nph);
 		       	} 	else {
+										 printf("need type!\n");
 	               	   need_type = 1;
-			}
+							  }
 				}				
 				else if (0 == strcmp(extension, "h5")) {
 					    printf("LOFAR BFwriter HDF5 file.\n");		/* DEBUG */
@@ -307,6 +308,10 @@ int main(int argc, char **argv)
          free(extension);
    }
 
+	 printf("need_type = %d\n", need_type);					/* DEBUG */
+	 printf("cmd->index[1] = %d\n", cmd->index[1]);		/* DEBUG */
+	 printf("cmd->lofarP = %d\n", cmd->lofarP);				/* DEBUG */
+
    if (cmd->index[1] == -1 || cmd->index[1] == 0)
       cmd->index[1] = INT_MAX;
    if (cmd->index[1] < cmd->index[0]) {
@@ -317,7 +322,6 @@ int main(int argc, char **argv)
 
    if (cmd->psrfitsP) {
        struct spectra_info s;
-       
        // -1 causes the data to determine if we use weights, scales, & offsets
 /* TODO: Scott has to fix this       
 			s.apply_weight = s.apply_scale = s.apply_offset = -1;
@@ -327,14 +331,17 @@ int main(int argc, char **argv)
        } else {
            printf("\n  Error reading PSRFITS file!\n\n");
        }
-       exit(0);
 */
+       exit(0);
    }
 
   /* LOFAR BFwriter files */
   if (cmd->lofarP) {
 		struct spectra_info s;
-  	//print_LOFARBF_info(s);
+		//s->num_files = cmd->argv;
+		read_LOFARBF_files(cmd->argv, cmd->argc, &s);
+
+  	//print_LOFARBF_info(&s);
     exit(0);
   }
 
@@ -587,7 +594,7 @@ int PSRFITSHDR_print(long count, char *obj_ptr)
 int LOFARHDR_print()
 {
 	struct spectra_info *s;
-//	print_LOFARBF_info(s);
+	print_LOFARBF_info(s);
 
   return 0;
 }

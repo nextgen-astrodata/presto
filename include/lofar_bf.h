@@ -77,6 +77,6 @@ struct spectra_info {
 };
 */
 /* Functions according to PSRFITS file format handling */
-void read_LOFARBF_files(struct spectra_info *s);
+void read_LOFARBF_files(char **filenames, int numfiles, struct spectra_info *s);
 int is_LOFARBF(const char *filename);
 void print_LOFARBF_info(struct spectra_info *s);
