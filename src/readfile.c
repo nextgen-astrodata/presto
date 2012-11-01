@@ -308,9 +308,10 @@ int main(int argc, char **argv)
          free(extension);
    }
 
-	 printf("need_type = %d\n", need_type);					/* DEBUG */
+	 printf("need_type = %d\n", need_type);						/* DEBUG */
 	 printf("cmd->index[1] = %d\n", cmd->index[1]);		/* DEBUG */
 	 printf("cmd->lofarP = %d\n", cmd->lofarP);				/* DEBUG */
+	 printf("cmd->psrfitsP = %d\n", cmd->psrfitsP); 	/* DEBUG */
 
    if (cmd->index[1] == -1 || cmd->index[1] == 0)
       cmd->index[1] = INT_MAX;
@@ -338,10 +339,27 @@ int main(int argc, char **argv)
   /* LOFAR BFwriter files */
   if (cmd->lofarP) {
 		struct spectra_info s;
-		//s->num_files = cmd->argv;
-		read_LOFARBF_files(cmd->argv, cmd->argc, &s);
+		s.num_files = cmd->argc;
+    s.datatype = LOFARBF;
 
+ 		if (s.num_files > MAXPFITSFILES) {
+        printf("Error!: There are more than %d input files!\n", MAXPFITSFILES);
+        exit(1);
+    }
+
+		// copy filenames into spectra_info
+		unsigned i=0;		
+		s.filenames = (char**) calloc(sizeof(char*), s.num_files);
+		for(i=0; i < s.num_files; i++)
+		{
+			s.filenames[i] = (char*) calloc(sizeof(char*), strlen(argv[i+1]));
+			strncpy(s.filenames[i], argv[i+1], 255);
+		}
+
+		read_LOFARBF_files(&s);
   	//print_LOFARBF_info(&s);
+		print_spectra_info(&s);
+
     exit(0);
   }
 
