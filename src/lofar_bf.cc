@@ -3,13 +3,14 @@
 
   Author:       Sven Duscha (duscha@astron.nl)
   Date:         2012-09-13
-  Last change:  2012-11-01
+  Last change:  2012-11-07
 */
 
 #include "/home/duscha/DAL/include/dal/lofar/CLA_File.h" 	// DAL includes
 #include "/home/duscha/DAL/include/dal/lofar/BF_File.h" 	// DAL includes
 #include <iostream>
 #include <vector>
+#include <numeric>
 
 // PRESTO C includes, with our own lofar_bf.h function declarations
 extern "C"
@@ -17,6 +18,7 @@ extern "C"
 	#include "presto.h"
 	#include "mask.h"
 	#include "backend_common.h"
+	#include "misc_utils.h" 
 	#include "lofar_bf.h"
 }
 
@@ -36,6 +38,11 @@ using namespace dal;
 //void read_LOFARBF_files(const char **filenames, int numfiles, struct spectra_info *s)
 void read_LOFARBF_files(struct spectra_info *s)
 {
+    // TODO: make SAP, BEAM and STOKES selectable through function parameters
+    int sapNr=0;
+    int beamNr=0;
+    int stokesNr=0;
+
 		/*
 		s->fitsfiles = (fitsfile **)malloc(sizeof(fitsfile *) * s->num_files);
 		*/
@@ -46,12 +53,13 @@ void read_LOFARBF_files(struct spectra_info *s)
     s->num_pad = (long long *)malloc(sizeof(long long) * s->num_files);
     s->start_MJD = (long double *)malloc(sizeof(long double) * s->num_files);
     s->N = 0;
-    s->num_beams = 1;
+    //s->num_beams = 1;
 
 		/* TODO: Is this for LOFAR BF data relevant? */
     // By default, don't flip the band.  But don't change
     // the input value if it is aleady set to flip the band always
-    if (s->apply_flipband==-1) s->apply_flipband = 0;
+    //if (s->apply_flipband==-1) s->apply_flipband = 0;
+    s->apply_flipband=0;    // LOFAR BF don't flip the band
 
     // Step through the other files
     for (int ii = 0; ii < s->num_files; ii++)
@@ -108,14 +116,21 @@ void read_LOFARBF_files(struct spectra_info *s)
 				s->start_MJD=(long double*) malloc(sizeof(long double));
 				s->start_MJD[0]=file.observationStartMJD().value;
 
-				// RA J2000 and Dec J2000 in HH:MM:SS
 				//strncpy(s->ra_str, doubleToString(sap.pointRA().value).c_str(), CHARLEN);
 				//strncpy(s->ra_str, doubleToString(sap.pointDEC().value).c_str(), CHARLEN);
 
 				// RA J2000 and Dec J2000 in degrees
 				s->ra2000=sap.pointRA().value;
 				s->dec2000=sap.pointDEC().value;
-
+				// RA J2000 and Dec J2000 in HH:MM:SS
+				int hh=0, mm=0;  // hour and minute for RA and DEC conversion
+				double ss=0;     // seconds
+				deg2dms(s->ra2000, &hh, &mm, &ss);
+        string RA=intToString(hh).append(":").append(intToString(mm)).append(":").append(intToString(ss));      				
+        strncpy(s->ra_str, RA.c_str(), CHARLEN);
+        deg2dms(s->dec2000, &hh, &mm, &ss);
+        string DEC=intToString(hh).append(":").append(intToString(mm)).append(":").append(intToString(ss));      				
+        strncpy(s->dec_str, DEC.c_str(), CHARLEN);
 				// Tracking
 				if(beam.tracking().exists())
 				{
@@ -135,8 +150,8 @@ void read_LOFARBF_files(struct spectra_info *s)
 					s->zenith_ang=90-beam.pointAltitude().get(); // Zenith_ang = 90 - altitude
 				}	
         */
-				s->azimuth=-1;      // as long as these are not in the file, set them to -1
-        s->zenith_ang=-1;
+				s->azimuth=0;      // as long as these are not in the file, set them to -1
+        s->zenith_ang=0;
 
 				// Polarizations Type and order, Number of spectra, TODO: only I supported for now
 				// Read polarization from the BEAM group, these are the polarizations in THIS file
@@ -149,11 +164,13 @@ void read_LOFARBF_files(struct spectra_info *s)
         }
         strncpy(s->poln_order, stokesComponents.c_str(), CHARLEN);
         s->num_polns=stokesComponents.size();
-        // summed polarizations?
+        s->summed_polns=0;            // summed polarizations?
+        /* TODO: is this true?
         if(beam.signalSum().get()=="COHERENT")
           s->summed_polns=1;        
         else
           s->summed_polns=0;
+        */
 
         // Number of beams and beam selection
         s->num_beams=sap.nofBeams().value;
@@ -205,10 +222,33 @@ void read_LOFARBF_files(struct spectra_info *s)
           s->beam_FWHM=beam.beamDiameterRA().value*60;
         else if(beam.beamDiameterRAUnit().get() == "arcsec")
           s->beam_FWHM=beam.beamDiameterRA().value*60;
-          
+        // number of channels
+        s->orig_num_chan=beam.channelsPerSubband().value;    // Number of spectral channels per sample
+        
+        //BF_Stokes stokes=beam.stokes(stokesNr);         // Get STOKES_0 , TODO: make this selectable  
+        vector<unsigned int> v=beam.stokes(stokesNr).nofChannels().get();    
+        s->num_channels=std::accumulate(v.begin(), v.end(), 0); // use STL to sum over channels per subband
         // Total number of spectra samples in observation
      		s->N=beam.nofSamples().value*stokesComponents.size();
 
+        if(beam.stokes(stokesNr).dataType().get()=="float")
+          s->bits_per_sample=32;     // Bytes per sample default=4 (float)
+        else if(beam.stokes(stokesNr).dataType().get()=="int")
+          s->bits_per_sample=16;
+        else if(beam.stokes(stokesNr).dataType().get()=="char")  
+          s->bits_per_sample=8;
+        
+        s->T=sap.totalIntegrationTime().value;                // total time in observation         
+        s->time_per_subint=sap.totalIntegrationTime().value;
+        s->bytes_per_spectra=s->num_channels * s->bits_per_sample;  // Number of bytes in a spectra (inluding all polns)
+        s->samples_per_spectra=beam.nofSamples().value;  // TODO: is this correct?
+        s->zero_offset=0;         // LOFAR BF data has no zero offset
+        s->header_offset=0;       // NO bytes to skip from header
+        s->offset_to_spectra=0;   // bytes in file header (NOT needed for LOFAR)
+
+        //s->spectra_per_subint=;
+        //s->samples_per_subint=;
+        //TODO: fill in remaining information into spectra_info        
 		}
 }
 
@@ -268,6 +308,11 @@ vector<int> findBeams(BF_SubArrayPointing &sap)
 
 	return beams;
 }
+
+// Convert RA from degrees to HH:MM:SS
+
+
+// Convert RA from degrees to HH:MM:SS
 
 
 // Check if the file is a LOFAR BeamFormed HDF5 file 
