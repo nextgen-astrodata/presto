@@ -131,6 +131,9 @@ double hms2rad(int hour, int min, double sec);
 void hours2hms(double hours, int *h, int *m, double *s);
 /* Convert decimal hours to hours, minutes, and seconds */
 
+void deg2RAhms(double degrees, int *h, int *m, double *s);
+/* Convert decimal RA to hours, minutes, and seconds of arc of radians */
+
 void deg2dms(double degrees, int *d, int *m, double *s);
 /* Convert decimal degrees to degrees, minutes, and seconds */
 

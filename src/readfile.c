@@ -359,7 +359,6 @@ int main(int argc, char **argv)
 		}
 
 		read_LOFARBF_files(&s);
-  	//print_LOFARBF_info(&s);
 		print_spectra_info(&s);
 
     exit(0);

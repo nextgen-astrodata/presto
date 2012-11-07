@@ -133,12 +133,14 @@ void read_LOFARBF_files(struct spectra_info *s)
 				// RA J2000 and Dec J2000 in HH:MM:SS
 				int hh=0, mm=0;  // hour and minute for RA and DEC conversion
 				double ss=0;     // seconds
-				deg2dms(s->ra2000, &hh, &mm, &ss);
-        string RA=intToString(hh).append(":").append(intToString(mm)).append(":").append(intToString(ss));      				
-        strncpy(s->ra_str, RA.c_str(), CHARLEN);
+			  deg2RAhms(s->ra2000, &hh, &mm, &ss);
+			  char RA[40], DEC[40];
+        ra_dec_to_string(RA, hh, mm, ss);
+        strncpy(s->ra_str, RA, CHARLEN);
         deg2dms(s->dec2000, &hh, &mm, &ss);
-        string DEC=intToString(hh).append(":").append(intToString(mm)).append(":").append(intToString(ss));      				
-        strncpy(s->dec_str, DEC.c_str(), CHARLEN);
+        //string DEC=intToString(hh).append(":").append(intToString(mm)).append(":").append(intToString(ss));      				
+        ra_dec_to_string(DEC, hh, mm, ss);
+        strncpy(s->dec_str, DEC, CHARLEN);
 				// Tracking
 				if(beam.tracking().exists())
 				{

@@ -673,6 +673,17 @@ void hours2hms(double hours, int *h, int *m, double *s)
    *s = (tmp - *m) * 60.0;
 }
 
+void deg2RAhms(double degrees, int *h, int *m, double *s)
+/* Convert RA decimal degrees to hours, minutes, and seconds */
+{
+   double tmp=0;
+
+    *h = (int)(degrees/15);
+    tmp = (degrees/15 - *h) * 60.0;
+    *m = (int) floor(tmp);
+    *s = (tmp - *m) * 60.0;
+}
+
 void deg2dms(double degrees, int *d, int *m, double *s)
 /* Convert decimal degrees to degrees, minutes, and seconds */
 {
