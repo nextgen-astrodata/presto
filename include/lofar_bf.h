@@ -5,6 +5,10 @@
     of this hierarchy we define structs for each of the subgroups
     SUB_ARRAY_POINTING, BEAM, STOKESS which then can be used in LOFARBF
                                                                   */  
+
+#include <vector>
+#include "/home/duscha/DAL/include/dal/lofar/BF_File.h" 	// DAL includes
+
 #define MAXPFITSFILES 1000
 
 /* TODO: This file contains DAL specific code, so it must be compiled/handled with g++ */
@@ -78,6 +82,13 @@ struct spectra_info {
 */
 /* Functions according to PSRFITS file format handling */
 //void read_LOFARBF_files(const char **filenames, int numfiles, struct spectra_info *s);
+
+std::string doubleToString(double num);
+std::string intToString(int num);
+std::string longToString(long num);
+std::vector<int> findSaps(dal::BF_File &file);
+std::vector<int> findBeams(dal::BF_SubArrayPointing &sap);
+
 void read_LOFARBF_files(struct spectra_info *s);
 int is_LOFARBF(const char *filename);
 void print_LOFARBF_info(struct spectra_info *s);

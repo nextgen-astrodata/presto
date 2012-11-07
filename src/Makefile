@@ -48,16 +48,16 @@ OTHERINCDIR = -I$(SYSDIR)/include/glib-2.0 -I$(SYSDIR)/lib/glib-2.0/include -I$(
 OTHERLIBDIR =
 
 #DAL2.5 include directory and library directory
-#LOFARDALINCDIR=-I/opt/cep/dal/current/include	# DAL include directory on CEP
-#LOFARDALLIBDIR=-L/opt/cep/dal/current/lib/ 		# DAL lib directory on CEP
-LOFARDALINCDIR=/home/duscha/DAL/include
-LOFARDALLIBDIR=/home/duscha/DAL/lib/
+LOFARDALINCDIR=-I/opt/cep/dal/current/include	# DAL include directory on CEP
+LOFARDALLIBDIR=-L/opt/cep/dal/current/lib/ 		# DAL lib directory on CEP
+#LOFARDALINCDIR=/home/duscha/DAL_bak/include     # use this for the time the BF_File bug exists
+#LOFARDALLIBDIR=/home/duscha/DAL_bak/lib/        # use this for the time the BF_File bug exists
 
 
 # The standard PRESTO libraries to link into executables
 #PRESTOLINK = -L$(OTHERLIBDIR) -L$(PRESTO)/lib -lpresto $(FFTLINK) 
 PRESTOLINK = -L$(PRESTO)/lib -lpresto $(FFTLINK)
-LOFARLINK = -L${LOFARDALLIBDIR} -llofardal -llofarpresto
+LOFARLINK = ${LOFARDALLIBDIR} -llofardal -llofarpresto
 
 # When modifying the CLIG files, the is the location of the clig binary
 CLIG = clig
