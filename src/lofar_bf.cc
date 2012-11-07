@@ -72,59 +72,31 @@ void read_LOFARBF_files(struct spectra_info *s)
 				// Read all spectra_info equivalent information from LOFARBF file through DAL2.5
 				strncpy(s->telescope, file.telescope().get().c_str() , CHARLEN);
 				strncpy(s->observer, file.projectPI().get().c_str() , CHARLEN);
-        // TODO: when DAL copy constructor bug has been fixed, use functions again
-				string sapNr=intToString(findSaps(file)[0]);  // DEBUG
-				cout << "sapNr: " << sapNr << endl; 	// DEBUG	
-				BF_SubArrayPointing sap(file.subArrayPointing(findSaps(file)[0]));	  // TODO: allow other SAPs
-				string beamNr=intToString(findBeams(sap)[0]);
-				BF_BeamGroup beam(sap.beam(findBeams(sap)[0]));				// TODO: allow multiple Beams
-				cout << "beamNr: " << beamNr << endl; // DEBUG
 
-/*
-        // Get SAP Numbers from file
-    	  vector<int> saps;
-	      for(unsigned int i=0; i<file.nofSubArrayPointings().value; i++)
-	      {
-	        cout << "i: " << i << endl;
-	      	if(file.subArrayPointing(i).exists())
-		      {
-			      saps.push_back(i);
-		      }
-	      }
-        BF_SubArrayPointing sap(file, file.subArrayPointing(saps[0]).name());
-        // Get BEAM numbers from file  
-	      vector<int> beams;
-        for(unsigned int i=0; i<sap.nofBeams().value; i++)
-	      {
-	        cout << "sap.nofBeams().value: " << sap.nofBeams().value << endl;   // DEBUG
-		      cout << "sap.beam(i).exists(): " << sap.beam(i).exists() << endl;   // DEBUG
-		      if(sap.beam(i).exists())
-		      {
-		        cout << "beams.push_back("<< i << ")" << endl;  // DEBUG
-			      beams.push_back(i);
-		      }
-	      }
-	      cout << "beams[0]: " << beams[0] << endl;
-        if(beams.size()==0)
-        {
-          fprintf(stderr, "error: %s SAP %d does not contain any beams", s->filenames[ii], saps[0]);
-          exit(1);
-        }
-        BF_BeamGroup beam(sap, sap.beam(beams[0]).name());
-*/
+				BF_SubArrayPointing sap(file.subArrayPointing(findSaps(file)[0]));	// TODO: allow other SAPs
+				BF_BeamGroup beam(sap.beam(findBeams(sap)[0]));				              // TODO: allow multiple Beams
+
 				// Targets				
-				vector<string> targets(beam.targets().get());	
+				vector<string> targets(beam.targets().get());	    // TODO: write all targets into ->source?
 				strncpy(s->source, targets[0].c_str(), CHARLEN);	// spectra_info leaves only CHARLEN chars for (one) target 
 
 				// Frontend and Backend
-				// SAMPLING_RATE, use this as "Frontend" entry, leave "Backend" empty
+				// CLOCK_FREQUENCY, use this as "Frontend" entry, leave "Backend" empty
 				if(file.antennaSet().exists())
 				{
 					strncpy(s->frontend, file.antennaSet().get().c_str(), CHARLEN);
 				}
-				if(beam.samplingRate().exists())
+				if(file.clockFrequency().exists())
 				{
-		  		strncpy(s->backend, doubleToString(beam.samplingRate().value).c_str(), CHARLEN);
+	        if(file.clockFrequencyUnit().exists())
+	        {
+	          string backend=doubleToString(file.clockFrequency().value).append(" ").append(file.clockFrequencyUnit().value);
+	          strncpy(s->backend, backend.c_str(), CHARLEN); 
+	        }
+	        else
+	        {
+		  		strncpy(s->backend, doubleToString(file.clockFrequency().value).c_str(), CHARLEN);
+				  }
 				}
 				// PROJECT_ID
 				strncpy(s->project_id, file.projectID().get().c_str() , CHARLEN);
@@ -152,7 +124,7 @@ void read_LOFARBF_files(struct spectra_info *s)
 					else
 						s->tracking=0;
 				}
-				// Azimuth and altitude
+				// Azimuth and altitude, both are only optional
 				/*
 				if(beam.pointAzimuth().exists())
 				{
@@ -162,14 +134,81 @@ void read_LOFARBF_files(struct spectra_info *s)
 				{
 					s->zenith_ang=90-beam.pointAltitude().get(); // Zenith_ang = 90 - altitude
 				}	
-				*/
+        */
+				s->azimuth=-1;      // as long as these are not in the file, set them to -1
+        s->zenith_ang=-1;
 
 				// Polarizations Type and order, Number of spectra, TODO: only I supported for now
-    	 	strncpy(s->poln_type, "LIN", CHARLEN);   // Polarization recorded (LIN or CIRC)
-     		strncpy(s->poln_order, "I", CHARLEN);    // Order of polarizations (i.e. XXYYXYYX) TODO: get Stokes parameter
+				// Read polarization from the BEAM group, these are the polarizations in THIS file
+    	 	strncpy(s->poln_type, "LIN", CHARLEN);   // Polarization recorded (LIN or CIRC), for LOFAR BF always "LIN"
+        string stokesComponents;
+        vector<string> stokesComponentsVec=beam.stokesComponents().get();
+        for(unsigned int i=0; i<stokesComponentsVec.size(); i++)
+        {
+          stokesComponents.append(stokesComponentsVec[i]);
+        }
+        strncpy(s->poln_order, stokesComponents.c_str(), CHARLEN);
+        s->num_polns=stokesComponents.size();
+        // summed polarizations?
+        if(beam.signalSum().get()=="COHERENT")
+          s->summed_polns=1;        
+        else
+          s->summed_polns=0;
 
-				//BF_Stokes stokes0(beam, "STOKES_0");	// open STOKES_0 group
-     		//s->N=stokes0.nofSamples().value;    // Total number of spectra in observation
+        // Number of beams and beam selection
+        s->num_beams=sap.nofBeams().value;
+        s->beamnum=0;                         // selected beam (TODO: allow beam selection)
+
+        // Sample time, use unit to convert to "us" LOFAR BF default = "s"
+        if(beam.samplingTimeUnit().get() == "s")
+          s->dt=beam.samplingTime().value*10e-6;        
+        else if(beam.samplingTimeUnit().get() == "ms")        
+          s->dt=beam.samplingTime().value*10e-3;
+        else if(beam.samplingTimeUnit().get() == "us")        
+          s->dt=beam.samplingTime().value;        
+        else if(beam.samplingTimeUnit().get() == "ns")        
+          s->dt=beam.samplingTime().value*10e3;                
+        
+        // Frequencies
+        // Central frequency, default in LOFAR BF is "MHz"
+        if(beam.beamFrequencyCenterUnit().get() == "MHz")
+          s->fctr=beam.beamFrequencyCenter().value;
+        if(beam.beamFrequencyCenterUnit().get() == "kHz")
+          s->fctr=beam.beamFrequencyCenter().value*10e-3; 
+        // Low channel / High channel
+        if(beam.beamFrequencyCenterUnit().get() == "MHz")
+        {
+          s->lo_freq=file.observationFrequencyMin().value;
+          s->hi_freq=file.observationFrequencyMax().value;
+        }
+        else if(beam.beamFrequencyCenterUnit().get() == "kHz")
+        {
+          s->lo_freq=file.observationFrequencyMin().value*10e-3; 
+          s->hi_freq=file.observationFrequencyMax().value*10e-3; 
+        }
+        // Channel width (LOFAR BF default="Hz")
+        if(beam.channelWidthUnit().get() == "kHz")
+          s->orig_df=beam.channelWidth().value*10e-3;
+        else if(beam.channelWidthUnit().get() == "Hz")
+          s->df=beam.channelWidth().value*10e-6;
+        // Bandwidth, check for Unit if it is MHz, kHz, or Hz
+        if(file.bandwidthUnit().get()=="MHz")
+          s->BW=file.bandwidth().value;
+		    else if(file.bandwidthUnit().get()=="kHz")
+		      s->BW=file.bandwidth().value * 1000;
+		    else
+		      s->BW=file.bandwidth().value * 1000000;
+        // Beam FWHM: BEAM_DIAMETER in RA (default="arcmin")
+        if(beam.beamDiameterRAUnit().get() == "deg")
+          s->beam_FWHM=beam.beamDiameterRA().value;
+        else if(beam.beamDiameterRAUnit().get() == "arcmin")
+          s->beam_FWHM=beam.beamDiameterRA().value*60;
+        else if(beam.beamDiameterRAUnit().get() == "arcsec")
+          s->beam_FWHM=beam.beamDiameterRA().value*60;
+          
+        // Total number of spectra samples in observation
+     		s->N=beam.nofSamples().value*stokesComponents.size();
+
 		}
 }
 
@@ -229,6 +268,7 @@ vector<int> findBeams(BF_SubArrayPointing &sap)
 
 	return beams;
 }
+
 
 // Check if the file is a LOFAR BeamFormed HDF5 file 
 int is_LOFARBF(const char *filename)
