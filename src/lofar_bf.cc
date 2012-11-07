@@ -33,6 +33,14 @@ using namespace dal;
 #define MAXLEN 500
 #endif
 
+// Helper functions
+std::string doubleToString(double num);
+std::string intToString(int num);
+std::string longToString(long num);
+std::vector<int> findSaps(dal::BF_File &file);
+std::vector<int> findBeams(dal::BF_SubArrayPointing &sap);
+
+
 // Read and convert PSRFITS information from a group of files 
 // and place the resulting info into a spectra_info structure.
 //void read_LOFARBF_files(const char **filenames, int numfiles, struct spectra_info *s)

@@ -212,8 +212,10 @@ int main(int argc, char **argv)
                             "Assuming the data is in PSRFITS format.\n\n");
                 }
             } else if (0 == strcmp(extension, "h5")) {
+                cmd->lofarP = 1;
                 index = LOFARHDR;
                 fprintf(stdout, "Assuming the data is in LOFAR BF format.\n\n");
+                
             } else if (0 == strcmp(extension, "bcpm1") ||
                        0 == strcmp(extension, "bcpm2")) {
                cmd->bcpmP = 1;
@@ -308,10 +310,10 @@ int main(int argc, char **argv)
          free(extension);
    }
 
-	 printf("need_type = %d\n", need_type);						/* DEBUG */
-	 printf("cmd->index[1] = %d\n", cmd->index[1]);		/* DEBUG */
-	 printf("cmd->lofarP = %d\n", cmd->lofarP);				/* DEBUG */
-	 printf("cmd->psrfitsP = %d\n", cmd->psrfitsP); 	/* DEBUG */
+//	 printf("need_type = %d\n", need_type);						/* DEBUG */
+//	 printf("cmd->index[1] = %d\n", cmd->index[1]);		/* DEBUG */
+//	 printf("cmd->lofarP = %d\n", cmd->lofarP);				/* DEBUG */
+//	 printf("cmd->psrfitsP = %d\n", cmd->psrfitsP); 	/* DEBUG */
 
    if (cmd->index[1] == -1 || cmd->index[1] == 0)
       cmd->index[1] = INT_MAX;
