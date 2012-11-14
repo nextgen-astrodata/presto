@@ -9,7 +9,7 @@
 #endif
 
 #define RAWDATA (cmd->pkmbP || cmd->bcpmP || cmd->wappP \
-                 || cmd->spigotP || cmd->filterbankP || cmd->psrfitsP)
+                 || cmd->spigotP || cmd->filterbankP || cmd->psrfitsP || cmd->lofarP)
 
 extern int getpoly(double mjd, double duration, double *dm, FILE * fp, char *pname);
 extern int phcalc(double mjd0, double mjd1, int last_index,
@@ -159,6 +159,7 @@ int main(int argc, char *argv[])
    if (RAWDATA) {
        if (cmd->filterbankP) s.datatype = SIGPROCFB;
        else if (cmd->psrfitsP) s.datatype = PSRFITS;
+       else if (cmd->lofarP) s.datatype = LOFARBF;
        else if (cmd->pkmbP) s.datatype = SCAMP;
        else if (cmd->bcpmP) s.datatype = BPP;
        else if (cmd->wappP) s.datatype = WAPP;
@@ -167,6 +168,7 @@ int main(int argc, char *argv[])
        identify_psrdatatype(&s, 1);
        if (s.datatype==SIGPROCFB) cmd->filterbankP = 1;
        else if (s.datatype==PSRFITS) cmd->psrfitsP = 1;
+       else if (s.datatype==LOFARBF) cmd->lofarP = 1;
        else if (s.datatype==SCAMP) cmd->pkmbP = 1;
        else if (s.datatype==BPP) cmd->bcpmP = 1;
        else if (s.datatype==WAPP) cmd->wappP = 1;
@@ -183,6 +185,10 @@ int main(int argc, char *argv[])
            exit(1);
        }
    }
+
+   printf("RAWDATA = %d\n", RAWDATA);   /* DEBUG */
+   printf("cmd->lofarP = %d\ts.datatype = %d\tLOFARBF = %d\n", cmd->lofarP, s.datatype, LOFARBF); /* DEBUG */
+
    
    if (!RAWDATA) s.files = (FILE **)malloc(sizeof(FILE *) * s.num_files);
    if (RAWDATA || insubs) {
@@ -231,7 +237,7 @@ int main(int argc, char *argv[])
    }
 
    if (!RAWDATA) {
-       char *root, *suffix;
+       char *root=NULL, *suffix=NULL;
        if (split_root_suffix(s.filenames[0], &root, &suffix) == 0) {
            printf("Error:  The input filename (%s) must have a suffix!\n\n", s.filenames[0]);
            exit(1);

@@ -7,7 +7,7 @@
 
 typedef enum {
     SIGPROCFB, PSRFITS, SCAMP, BPP, WAPP, SPIGOT, \
-    SUBBAND, DAT, SDAT, EVENTS, UNSET, LOFARBF			/* TODO: UNSET should be the last entry */
+    SUBBAND, DAT, SDAT, EVENTS, LOFARBF, UNSET			/* TODO: UNSET should be the last entry */
 } psrdatatype;
 
 

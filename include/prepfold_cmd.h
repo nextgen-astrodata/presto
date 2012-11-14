@@ -25,6 +25,8 @@ typedef struct s_Cmdline {
   char filterbankP;
   /***** -psrfits: Raw data in PSRFITS format */
   char psrfitsP;
+  /***** -lofar: Raw data in LOFARBF format */
+  char lofarP;
   /***** -noweights: Do not apply PSRFITS weights */
   char noweightsP;
   /***** -noscales: Do not apply PSRFITS scales */
@@ -252,8 +254,6 @@ typedef struct s_Cmdline {
 extern char *Program;
 extern void usage(void);
 extern /*@shared*/Cmdline *parseCmdline(int argc, char **argv);
-
-extern void showOptionValues(void);
 
 #endif
 
