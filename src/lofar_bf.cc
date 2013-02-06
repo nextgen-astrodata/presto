@@ -68,6 +68,7 @@ void read_LOFARBF_files(struct spectra_info *s)
     // the input value if it is aleady set to flip the band always
     //if (s->apply_flipband==-1) s->apply_flipband = 0;
     s->apply_flipband=0;    // LOFAR BF don't flip the band
+    s->files=(FILE **)malloc(sizeof(FILE *) * s->num_files);
 
     // Step through the other files
     for (int ii = 0; ii < s->num_files; ii++)
@@ -83,8 +84,9 @@ void read_LOFARBF_files(struct spectra_info *s)
             exit(1);
         }
         
-				BF_File file(s->filenames[ii], BF_File::READ);						// Open the LOFARBF file
-
+				BF_File file(s->filenames[ii], BF_File::READ);			// Open the LOFARBF file
+        s->files[ii]=fopen(s->filenames[ii], "r");          // get "r"  file pointer to file for PRESTO
+ 
 				// Read all spectra_info equivalent information from LOFARBF file through DAL2.5
 				strncpy(s->telescope, file.telescope().get().c_str() , CHARLEN);
 				strncpy(s->observer, file.projectPI().get().c_str() , CHARLEN);
@@ -97,11 +99,7 @@ void read_LOFARBF_files(struct spectra_info *s)
 				strncpy(s->source, targets[0].c_str(), CHARLEN);	// spectra_info leaves only CHARLEN chars for (one) target 
 
 				// Frontend and Backend
-				// CLOCK_FREQUENCY, use this as "Frontend" entry, leave "Backend" empty
-				if(file.antennaSet().exists())
-				{
-					strncpy(s->frontend, file.antennaSet().get().c_str(), CHARLEN);
-				}
+				// CLOCK_FREQUENCY, use this as "Frontend" entry, use FILTER_SELECTION as "Backend"
 				if(file.clockFrequency().exists())
 				{
 	        if(file.clockFrequencyUnit().exists())
@@ -111,8 +109,12 @@ void read_LOFARBF_files(struct spectra_info *s)
 	        }
 	        else
 	        {
-		  		strncpy(s->backend, doubleToString(file.clockFrequency().value).c_str(), CHARLEN);
+		  		strncpy(s->backend, file.filterSelection().get().c_str(), CHARLEN);
 				  }
+				}
+				if(file.antennaSet().exists())
+				{
+					strncpy(s->frontend, file.antennaSet().get().c_str(), CHARLEN);
 				}
 				// PROJECT_ID
 				strncpy(s->project_id, file.projectID().get().c_str() , CHARLEN);
@@ -174,13 +176,7 @@ void read_LOFARBF_files(struct spectra_info *s)
         }
         strncpy(s->poln_order, stokesComponents.c_str(), CHARLEN);
         s->num_polns=stokesComponents.size();
-        s->summed_polns=0;            // summed polarizations?
-        /* TODO: is this true?
-        if(beam.signalSum().get()=="COHERENT")
-          s->summed_polns=1;        
-        else
-          s->summed_polns=0;
-        */
+        s->summed_polns=1;            // summed polarizations are always summed for LOFAR, i.e. I= XX + YY
 
         // Number of beams and beam selection
         s->num_beams=sap.nofBeams().value;
@@ -251,17 +247,31 @@ void read_LOFARBF_files(struct spectra_info *s)
         s->T=sap.totalIntegrationTime().value;                // total time in observation         
         s->time_per_subint=sap.totalIntegrationTime().value;
         s->bytes_per_spectra=s->num_channels * s->bits_per_sample;  // Number of bytes in a spectra (inluding all polns)
-        s->samples_per_spectra=beam.nofSamples().value;  // TODO: is this correct?
+        //s->samples_per_spectra=beam.nofSamples().value;  // TODO: is this correct?
+        s->samples_per_spectra = s->num_polns * s->num_channels;  // <- this is from psrfits.c implementation
         s->zero_offset=0;         // LOFAR BF data has no zero offset
         s->header_offset=0;       // NO bytes to skip from header
         s->offset_to_spectra=0;   // bytes in file header (NOT needed for LOFAR)
 
-        //s->spectra_per_subint=;
-        //s->samples_per_subint=;
-        //TODO: fill in remaining information into spectra_info        
+        s->spectra_per_subint=s->num_channels;          // TODO: is this correct?
+        s->samples_per_subint=beam.nofSamples().value;  // TODO: is this correct?
+        long long p=0;
+        s->num_pad=&p;     // LOFAR BF H5 does not use padding
+        
+        //TODO: fill in remaining information into spectra_info
 		}
 }
 
+/*
+long long (*offset_to_LOFARBF_spectra)(long long specnum, struct spectra_info *s)
+{
+  // Open LOFARBF RAW file with actual data
+  
+  // set file pointer in s to new file
+  
+  // return offset=0 (LOFAR BF has only 1 spectrum per file)  
+}
+*/
 
 // Helper functions to convert numbers to strings
 //
@@ -319,12 +329,6 @@ vector<int> findBeams(BF_SubArrayPointing &sap)
 	return beams;
 }
 
-// Convert RA from degrees to HH:MM:SS
-
-
-// Convert RA from degrees to HH:MM:SS
-
-
 // Check if the file is a LOFAR BeamFormed HDF5 file 
 int is_LOFARBF(const char *filename)
 {
@@ -361,35 +365,21 @@ void read_LOFAR_BF(FILE * infiles[], int numfiles, float *data,
 
 }
 
-void set_LOFAR_padvals(float *fpadvals, int good_padvals)
-{  
-   int ii;
-   float sum_padvals = 0.0;
-
-//   if (good_padvals) {
-//      for (ii = 0; ii < numchan_st; ii++) {
-//         padvals[ii] = newpadvals[ii] = (unsigned char) (fpadvals[ii] + 0.5);
-//         sum_padvals += fpadvals[ii];
-//      }
-//      padval = (unsigned char) (sum_padvals / numchan_st + 0.5);
-//   } else {
-//      for (ii = 0; ii < numchan_st; ii++)
-//         padvals[ii] = newpadvals[ii] = padval;
-//   }
-
-}
-
 void print_LOFARBF_info(struct spectra_info *s)
 {
 	printf("print_LOFARBF_info() s->num_files: %d\n", s->num_files);	/* DEBUG */
 	//printf("From the LOFARBF HDF5 file '%s':\n", s->files[0]->_ptr->filename);
 	// Loop over the files provided in spectra_info s
-
-
 	int i=0;
 	for(i=0; i<s->num_files; i++)
 	{
  		cout << "Information for" << s->filenames[i] << endl;
+    
 	}
 }
 
+// Read a rawblock from a LOFAR BF raw file
+int get_LOFARBF_rawblock(float *fdata, struct spectra_info *s, int *padding)
+{
+
+}

@@ -100,7 +100,9 @@ void identify_psrdatatype(struct spectra_info *s, int output)
             if (strstr(root, "spigot_5") != NULL) s->datatype = SPIGOT;
             else if (is_PSRFITS(s->filenames[0])) s->datatype = PSRFITS;
             else s->datatype = PSRFITS;
-        }
+            }
+        else if(strcmp(suffix, "h5") == 0)
+            if (is_LOFARBF(s->filenames[0])) s->datatype = LOFARBF;
         else if (strcmp(suffix, "pkmb") == 0) s->datatype = SCAMP;
         else if (isdigit(suffix[0]) && 
                  isdigit(suffix[1]) &&

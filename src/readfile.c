@@ -326,15 +326,15 @@ int main(int argc, char **argv)
    if (cmd->psrfitsP) {
        struct spectra_info s;
        // -1 causes the data to determine if we use weights, scales, & offsets
-/* TODO: Scott has to fix this       
+// TODO: Scott has to fix this       
 			s.apply_weight = s.apply_scale = s.apply_offset = -1;
        if (ls_PSRFITS_files(cmd->argv, cmd->argc, &s)) {
-           print_PSRFITS_info(&s);
+           /*print_PSRFITS_info(&s);*/
+           print_spectra_info(&);
            printf("\n");
        } else {
            printf("\n  Error reading PSRFITS file!\n\n");
-       }
-*/
+       }  
        exit(0);
    }
 
@@ -350,7 +350,7 @@ int main(int argc, char **argv)
     }
 
 		// copy filenames into spectra_info
-		unsigned i=0;		
+		int i=0;		
 		s.filenames = (char**) calloc(sizeof(char*), s.num_files);
 		for(i=0; i < s.num_files; i++)
 		{
@@ -374,7 +374,7 @@ int main(int argc, char **argv)
          printf("\n  Error reading spigot file!\n\n");
       }
       exit(0);
-   		*/
+	    */
 	 }
 
    if (cmd->filterbankP) {
@@ -612,7 +612,7 @@ int PSRFITSHDR_print(long count, char *obj_ptr)
 */
 int LOFARHDR_print()
 {
-	struct spectra_info *s;
+	struct spectra_info *s=NULL;
 	print_LOFARBF_info(s);
 
   return 0;

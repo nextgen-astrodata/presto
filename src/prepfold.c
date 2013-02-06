@@ -181,14 +181,10 @@ int main(int argc, char *argv[])
            insubs = 1;
        }
        else {
-           printf("Error:  Unable to identify input data files.  Please specify type.\n\n");
+           printf("Error:  Unable to identify input data files. Please specify type.\n\n");
            exit(1);
        }
    }
-
-   printf("RAWDATA = %d\n", RAWDATA);   /* DEBUG */
-   printf("cmd->lofarP = %d\ts.datatype = %d\tLOFARBF = %d\n", cmd->lofarP, s.datatype, LOFARBF); /* DEBUG */
-
    
    if (!RAWDATA) s.files = (FILE **)malloc(sizeof(FILE *) * s.num_files);
    if (RAWDATA || insubs) {
@@ -1058,7 +1054,16 @@ int main(int argc, char *argv[])
 
       data = gen_fvect(cmd->nsub * worklen);
       if (RAWDATA) {
-          offset_to_spectra(lorec * ptsperrec, &s);
+          /* LOFAR uses a separate rawfile that contains the actual samples */
+          if(s.datatype == LOFARBF)
+          {
+            printf("Read LOFAR BF raw file\n"); /* DEBUG */
+            /* use modified offset_to_spectra() function? */
+          }
+          else
+          {
+            offset_to_spectra(lorec * ptsperrec, &s);
+          }
       } else {
           if (useshorts) {
               int reclen = 1;
@@ -1220,7 +1225,8 @@ int main(int argc, char *argv[])
 
          for (jj = 0; jj < reads_per_part; jj++) {
             double fold_time0;
-
+          
+/* HACK */  //if (!RAWDATA) {
             if (RAWDATA) {
                 numread = read_subbands(data, idispdts, cmd->nsub, &s, 1, &padding,
                                         maskchans, &nummasked, &obsmask);

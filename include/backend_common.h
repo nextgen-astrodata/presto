@@ -7,7 +7,7 @@
 
 typedef enum {
     SIGPROCFB, PSRFITS, SCAMP, BPP, WAPP, SPIGOT, \
-    SUBBAND, DAT, SDAT, EVENTS, LOFARBF, UNSET			/* TODO: UNSET should be the last entry */
+    SUBBAND, DAT, SDAT, EVENTS, LOFARBF, UNSET
 } psrdatatype;
 
 
@@ -88,7 +88,6 @@ struct spectra_info {
 
 
 /* backend_common.c */
-//void read_LOFARBF_files(struct spectra_info *s);
 void psrdatatype_description(char *outstr, psrdatatype ptype);
 void identify_psrdatatype(struct spectra_info *s, int output);
 void close_rawfiles(struct spectra_info *s);
