@@ -1226,7 +1226,6 @@ int main(int argc, char *argv[])
          for (jj = 0; jj < reads_per_part; jj++) {
             double fold_time0;
           
-/* HACK */  //if (!RAWDATA) {
             if (RAWDATA) {
                 numread = read_subbands(data, idispdts, cmd->nsub, &s, 1, &padding,
                                         maskchans, &nummasked, &obsmask);

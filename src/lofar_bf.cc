@@ -176,7 +176,8 @@ void read_LOFARBF_files(struct spectra_info *s)
         }
         strncpy(s->poln_order, stokesComponents.c_str(), CHARLEN);
         s->num_polns=stokesComponents.size();
-        s->summed_polns=1;            // summed polarizations are always summed for LOFAR, i.e. I= XX + YY
+        /* Hack? if summed_polns is set to true, then s->num_pols is taken as 2, thought it should be 1 */
+        s->summed_polns=0;            // summed polarizations are always summed for LOFAR, i.e. I= XX + YY
 
         // Number of beams and beam selection
         s->num_beams=sap.nofBeams().value;
@@ -184,13 +185,13 @@ void read_LOFARBF_files(struct spectra_info *s)
 
         // Sample time, use unit to convert to "us" LOFAR BF default = "s"
         if(beam.samplingTimeUnit().get() == "s")
-          s->dt=beam.samplingTime().value*10e-6;        
+          s->dt=beam.samplingTime().value;        
         else if(beam.samplingTimeUnit().get() == "ms")        
           s->dt=beam.samplingTime().value*10e-3;
         else if(beam.samplingTimeUnit().get() == "us")        
-          s->dt=beam.samplingTime().value;        
+          s->dt=beam.samplingTime().value*10e-6;        
         else if(beam.samplingTimeUnit().get() == "ns")        
-          s->dt=beam.samplingTime().value*10e3;                
+          s->dt=beam.samplingTime().value*10e-9;                
         
         // Frequencies
         // Central frequency, default in LOFAR BF is "MHz"
@@ -253,8 +254,9 @@ void read_LOFARBF_files(struct spectra_info *s)
         s->header_offset=0;       // NO bytes to skip from header
         s->offset_to_spectra=0;   // bytes in file header (NOT needed for LOFAR)
 
-        s->spectra_per_subint=s->num_channels;          // TODO: is this correct?
-        s->samples_per_subint=beam.nofSamples().value;  // TODO: is this correct?
+        s->num_spec[ii] = beam.nofSamples().value;           // number of spectra per file
+        s->spectra_per_subint=s->num_channels;
+        s->samples_per_subint=beam.nofSamples().value;
         long long p=0;
         s->num_pad=&p;     // LOFAR BF H5 does not use padding
         
@@ -381,5 +383,5 @@ void print_LOFARBF_info(struct spectra_info *s)
 // Read a rawblock from a LOFAR BF raw file
 int get_LOFARBF_rawblock(float *fdata, struct spectra_info *s, int *padding)
 {
-
+  return 0;
 }
