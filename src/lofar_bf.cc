@@ -255,6 +255,8 @@ void read_LOFARBF_files(struct spectra_info *s)
         s->offset_to_spectra=0;   // bytes in file header (NOT needed for LOFAR)
 
         s->num_spec[ii] = beam.nofSamples().value;           // number of spectra per file
+        s->num_pad[ii] = 0;       // there are no padding samples after each file
+        
         s->spectra_per_subint=s->num_channels;
         s->samples_per_subint=beam.nofSamples().value;
         long long p=0;
